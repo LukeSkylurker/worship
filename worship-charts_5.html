@@ -461,6 +461,22 @@ const R_MERCY_CHORUS_LINES = [
 const R_MERCY_HIS_MORE_LINE = [ {c:'B', l:'His mercy is'}, {c:'E', l:'more'} ];
 const R_MERCY_OURSINS_EB = [ {c:'E/G#', l:''}, {c:'A', l:'Our sins, they are'}, {c:'E/B', l:'many'} ];
 
+// Reusable lines for Goodness of God
+const R_GOODNESS_TAG_G = [ {c:'C', l:'I will sing of the g-'}, {c:'D', l:'oodness of'}, {c:'G', l:'God'} ];
+const R_GOODNESS_CHORUS1_LINES = [
+  [ {c:'C', l:'All my life You have been'}, {c:'G', l:'faithful'} ],
+  [ {c:'C', l:'All my life You have been'}, {c:'G', l:'so, so'}, {c:'D', l:'good'} ],
+  [ {c:'C', l:'With every breath that I am'}, {c:'G', l:'able'}, {c:'D/F#', l:''}, {c:'Em', l:''} ],
+  R_GOODNESS_TAG_G,
+];
+const R_GOODNESS_RUNNING_LINE = [ {c:'G/B', l:'Your goodness is'}, {c:'C', l:'running after'}, {c:'D', l:"It's running after"}, {c:'G', l:'me'} ];
+const R_GOODNESS_BRIDGE_LINES = [
+  R_GOODNESS_RUNNING_LINE,
+  R_GOODNESS_RUNNING_LINE,
+  [ {c:'G/B', l:"With my life laid down I'm sur-"}, {c:'G', l:'rendered now'}, {c:'D', l:'I give You every'}, {c:'Em', l:'thing'} ],
+  R_GOODNESS_RUNNING_LINE,
+];
+
 // Reusable lines for Be Thou My Vision
 const R_VISION_CHORUS_LINES = [
   [ {c:'G', l:'O God,'}, {c:'Am', l:'be my'}, {c:'F', l:'everything,'}, {c:'G', l:'be my delight'} ],
@@ -1130,8 +1146,86 @@ const SONGS = [
       { type:'chorus', note:'×3', lines: R_VISION_CHORUS_LINES },
     ],
   },
-  { id:'goodness-of-god', title:'Goodness of God', artist:'Bethel Music / CeCe Winans', pending:true },
-  { id:'raise-a-hallelujah', title:'Raise a Hallelujah', artist:'Bethel Music', pending:true },
+  {
+    id: 'goodness-of-god',
+    title: 'Goodness of God',
+    artist: 'Bethel Music / CeCe Winans',
+    originalKey: 'G',
+    tempo: 64,
+    time: '4/4',
+    sections: [
+      { type:'intro', chordLine:['G','C','G','G','C','G'] },
+      { type:'verse', n:1, lines:[
+        [ {c:'G', l:'I love You Lord'} ],
+        [ {c:'C', l:'Oh Your mercy never'}, {c:'G', l:'fails me'}, {c:'D/F#', l:'All my'}, {c:'Em', l:'days'} ],
+        [ {c:'C', l:"I've been held in Your"}, {c:'D', l:'hands'} ],
+        [ {c:'Em', l:'From the moment that I wake up'}, {c:'C', l:''} ],
+        [ {c:'G', l:'Until I lay my'}, {c:'D/F#', l:'head'}, {c:'Em', l:''} ],
+        R_GOODNESS_TAG_G,
+      ]},
+      { type:'chorus', n:1, lines: R_GOODNESS_CHORUS1_LINES },
+      { type:'verse', n:2, lines:[
+        [ {c:'G', l:'I love Your voice'} ],
+        [ {c:'C', l:'You have led me through the'}, {c:'G', l:'fire'}, {c:'D/F#', l:'In darkest'}, {c:'Em', l:'nights'} ],
+        [ {c:'C', l:'You are close like no'}, {c:'D', l:'other'} ],
+        [ {c:'Em', l:"I've known You as a father"}, {c:'C', l:''} ],
+        [ {c:'G', l:"I've known You as a friend"}, {c:'D/F#', l:''}, {c:'Em', l:''} ],
+        [ {c:'C', l:'I have lived in the'}, {c:'D', l:'goodness of'}, {c:'G', l:'God'} ],
+      ]},
+      { type:'chorus', n:1, note:'Repeat', lines: R_GOODNESS_CHORUS1_LINES },
+      { type:'bridge', lines: R_GOODNESS_BRIDGE_LINES },
+      { type:'bridge', note:'Repeat', lines: R_GOODNESS_BRIDGE_LINES },
+      { type:'interlude', chordLine:['G','C','G'] },
+      { type:'chorus', n:1, note:'Repeat', lines: R_GOODNESS_CHORUS1_LINES },
+      { type:'chorus', n:2, lines:[
+        [ {c:'C', l:'All my life You have been'}, {c:'G', l:'faithful'} ],
+        [ {c:'C', l:'All my life You have been'}, {c:'G', l:'so, so'}, {c:'D', l:'good'} ],
+        [ {c:'C', l:'With every breath that I am'}, {c:'G', l:'able'}, {c:'D/F#', l:''}, {c:'Em', l:''} ],
+        [ {c:'C', l:'I will sing of the g-'}, {c:'D', l:'oodness of'}, {c:'Em', l:'God'} ],
+      ]},
+      { type:'tag', lines:[ R_GOODNESS_TAG_G ] },
+    ],
+  },
+  {
+    id: 'raise-a-hallelujah',
+    title: 'Raise a Hallelujah',
+    artist: 'Bethel Music',
+    originalKey: 'C',
+    tempo: 68,
+    time: '4/4',
+    sections: [
+      { type:'verse', n:1, lines:[
+        [ {c:'C', l:'I raise a hallelujah, in the'}, {c:'F', l:'presence of my enemies'} ],
+        [ {c:'Am', l:'I raise a hallelujah,'}, {c:'G', l:'louder than the unbelief'} ],
+        [ {c:'C', l:'I raise a hallelujah, my'}, {c:'F', l:'weapon is a melody'} ],
+        [ {c:'Am', l:'I raise a hallelujah,'}, {c:'G', l:'Heaven comes to fight for me'} ],
+      ]},
+      { type:'chorus', lines:[
+        [ {c:'F', l:"I'm gonna sing in the"}, {c:'C', l:'middle of the storm'} ],
+        [ {c:'Am', l:"Louder and louder, you're gonna"}, {c:'G', l:'hear my praises roar'} ],
+        [ {c:'F', l:'Up from the ashes,'}, {c:'C', l:'hope will arise'} ],
+        [ {c:'Am', l:'Death is defeated, the'}, {c:'G', l:'King is alive'}, {c:'G', l:''} ],
+      ]},
+      { type:'verse', n:2, lines:[
+        [ {c:'C', l:'I raise a Hallelujah, with'}, {c:'F', l:'everything inside of me'} ],
+        [ {c:'Am', l:'I raise a Hallelujah,'}, {c:'G', l:'I will watch the darkness flee'} ],
+        [ {c:'C', l:'I raise a Hallelujah, in the'}, {c:'F', l:'middle of the mystery'} ],
+        [ {c:'Am', l:'I raise a Hallelujah,'}, {c:'G', l:'fear you lost your hold on me'} ],
+      ]},
+      { type:'bridge', lines:[
+        [ {c:'C', l:'Sing a little louder (In the presence of my enemies)'} ],
+        [ {c:'F', l:'Sing a little louder (Louder than the unbelief)'} ],
+        [ {c:'Am', l:'Sing a little louder (My weapon is a melody)'} ],
+        [ {c:'G', l:'Sing a little louder (Heaven comes to fight for me)'} ],
+      ]},
+      { type:'tag', lines:[
+        [ {c:'C', l:"I'll raise a Hallelujah"} ],
+        [ {c:'F', l:"I'll raise a Hallelujah"} ],
+        [ {c:'Am', l:"I'll raise a Hallelujah"} ],
+        [ {c:'G', l:"I'll raise a Hallelujah"} ],
+      ]},
+    ],
+  },
 ];
 
 /* ======================= MUSIC THEORY ======================= */
