@@ -235,6 +235,10 @@
     font-family:'IBM Plex Mono', monospace; font-size:.72rem; font-style:italic;
     color:var(--ink-faint);
   }
+  .section-part{
+    font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:.72rem;
+    text-transform:none; letter-spacing:0; color:var(--ink-faint);
+  }
   .section-card.compact{padding:13px 20px;}
   .section-card.compact .section-card-head{margin-bottom:0;}
 
@@ -265,6 +269,33 @@
     padding:1px 6px; border-radius:5px; border:1px solid var(--border-soft);
   }
 
+  /* ---------- Layout toggle (1 col: songs on top / 2 col: sidebar) ---------- */
+  .layout-toggle{
+    display:inline-flex; border:1px solid var(--border); border-radius:9px; overflow:hidden;
+    margin-top:14px; background:var(--surface);
+  }
+  .layout-btn{
+    font-family:'IBM Plex Mono', monospace; font-size:.7rem; font-weight:600;
+    padding:6px 11px; border:none; background:transparent; color:var(--ink-dim); cursor:pointer;
+  }
+  .layout-btn:not(:last-child){border-right:1px solid var(--border);}
+  .layout-btn.active{background:var(--accent); color:#fff;}
+  .layout-btn:hover:not(.active){color:var(--ink);}
+
+  .app.layout-1col{flex-direction:column;}
+  .app.layout-1col .sidebar{
+    width:100%; border-right:none; border-bottom:1px solid var(--border-soft);
+    padding:16px; max-height:none;
+  }
+  .app.layout-1col .song-list{flex-direction:row; overflow-x:auto; gap:8px; padding-bottom:4px;}
+  .app.layout-1col .song-item{
+    flex-direction:column; align-items:flex-start; gap:4px;
+    width:150px; min-width:150px; max-width:150px; flex:0 0 auto; overflow:hidden;
+  }
+  .app.layout-1col .song-meta{width:100%; min-width:0;}
+  .app.layout-1col .song-title, .app.layout-1col .song-artist{max-width:100%;}
+  .app.layout-1col .chart-grid{column-count:1 !important; column-width:auto !important; max-width:720px;}
+
   @media (max-width: 860px){
     .app{flex-direction:column;}
     .sidebar{
@@ -272,7 +303,12 @@
       padding:16px; max-height:none;
     }
     .song-list{flex-direction:row; overflow-x:auto; gap:8px; padding-bottom:4px;}
-    .song-item{flex-direction:column; align-items:flex-start; min-width:150px; gap:4px;}
+    .song-item{
+      flex-direction:column; align-items:flex-start; gap:4px;
+      width:150px; min-width:150px; max-width:150px; flex:0 0 auto; overflow:hidden;
+    }
+    .song-meta{width:100%; min-width:0;}
+    .song-title, .song-artist{max-width:100%;}
     .main{padding:24px 18px 60px;}
     .chart-grid{columns: 1 100%;}
   }
@@ -296,7 +332,77 @@
     .key-control{border:none; box-shadow:none; padding:0; background:transparent;}
     .chart-grid{columns:1; column-count:1;}
     .section-card{box-shadow:none; break-inside:avoid; page-break-inside:avoid;}
-    .slides-overlay{display:none !important;}
+    .slides-overlay, .present-bar, .focus-bar, .focus-nav{display:none !important;}
+    .focus-mode-grid .section-card{opacity:1 !important; transform:none !important; box-shadow:none !important;}
+  }
+
+  .present-bar{
+    position:fixed; bottom:20px; right:20px; z-index:900;
+    display:flex; align-items:center; gap:10px;
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    padding:8px 12px; box-shadow:var(--shadow);
+    font-family:'IBM Plex Mono', monospace; font-size:.78rem; color:var(--ink);
+  }
+  .present-bar[hidden]{display:none;}
+  .present-bar-label{color:var(--ink-dim); white-space:nowrap;}
+  .present-bar button{
+    width:26px; height:26px; border-radius:7px; border:1px solid var(--border);
+    background:var(--surface-2); color:var(--ink); cursor:pointer; font-size:1rem;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .present-bar button:hover{border-color:var(--accent); color:var(--accent-strong);}
+  .present-bar-close{color:var(--ink-faint) !important;}
+  .present-bar-counter{white-space:nowrap; min-width:3.2em; text-align:center;}
+
+  /* ---------- Chart focus mode (present + follow-along on the chart itself) ---------- */
+  .app.focus-active .sidebar{display:none;}
+  .app.focus-active .main{max-width:900px; margin:0 auto; width:100%;}
+
+  .focus-bar{
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    position:sticky; top:0; z-index:5; background:var(--bg);
+    padding:2px 2px 16px; margin-bottom:18px; border-bottom:1px solid var(--border-soft);
+  }
+  .focus-exit{
+    font-family:'IBM Plex Mono', monospace; font-size:.74rem; font-weight:600;
+    padding:7px 12px; border-radius:8px; border:1px solid var(--border);
+    background:var(--surface); color:var(--ink-dim); cursor:pointer; flex-shrink:0;
+  }
+  .focus-exit:hover{color:var(--ink); border-color:var(--accent);}
+  .focus-title{
+    font-family:'Fraunces', serif; font-weight:600; font-size:1.05rem; color:var(--ink);
+    text-align:center; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .focus-counter{
+    font-family:'IBM Plex Mono', monospace; font-size:.74rem; color:var(--ink-faint);
+    white-space:nowrap; flex-shrink:0;
+  }
+
+  .focus-mode-grid{columns:1; max-width:760px; margin:0 auto; padding-bottom:90px;}
+  .focus-mode-grid .section-card{
+    opacity:.7; transform:scale(.99);
+    transition:opacity .25s ease, transform .25s ease, box-shadow .25s ease;
+  }
+  .focus-mode-grid .section-card.focused{
+    opacity:1; transform:scale(1);
+    box-shadow:0 0 0 2px var(--accent), var(--shadow);
+  }
+  .focus-mode-grid .drag-handle, .focus-mode-grid .section-close{display:none;}
+
+  .focus-nav{
+    position:fixed; right:26px; bottom:26px; z-index:20;
+    display:flex; flex-direction:column; gap:10px;
+  }
+  .focus-nav-btn{
+    width:52px; height:52px; border-radius:50%; border:1px solid var(--border);
+    background:var(--surface); color:var(--ink-dim); box-shadow:var(--shadow);
+    font-size:1.35rem; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .focus-nav-btn:hover:not(:disabled){color:var(--accent-strong); border-color:var(--accent);}
+  .focus-nav-btn:disabled{opacity:.3; cursor:default;}
+  @media (max-width:640px){
+    .focus-nav{right:16px; bottom:16px;}
+    .focus-nav-btn{width:46px; height:46px; font-size:1.2rem;}
   }
 
   .slides-overlay{
@@ -350,6 +456,10 @@
       <div class="kicker">Worship Set</div>
       <h1>Sunday Set Charts</h1>
       <p>Tap a song, pick your key.</p>
+      <div class="layout-toggle" id="layoutToggle">
+        <button type="button" class="layout-btn" data-layout="1col">1 col</button>
+        <button type="button" class="layout-btn" data-layout="2col">2 col</button>
+      </div>
     </div>
     <ul class="song-list" id="songList"></ul>
   </nav>
@@ -364,6 +474,14 @@
   <button class="slide-nav slide-prev" id="slidePrev" aria-label="Previous slide">&lsaquo;</button>
   <button class="slide-nav slide-next" id="slideNext" aria-label="Next slide">&rsaquo;</button>
   <button class="slide-close" id="slideClose" aria-label="Close slides">&times;</button>
+</div>
+
+<div class="present-bar" id="presentBar" hidden>
+  <span class="present-bar-label">Presenting</span>
+  <button id="presentBarPrev" aria-label="Previous slide">&lsaquo;</button>
+  <span class="present-bar-counter" id="presentBarCounter">1 / 1</span>
+  <button id="presentBarNext" aria-label="Next slide">&rsaquo;</button>
+  <button class="present-bar-close" id="presentBarClose" aria-label="Close presentation window">&times;</button>
 </div>
 
 <script>
@@ -1260,7 +1378,7 @@ function stepsBetween(fromKey, toKey){
 
 /* ======================= RENDER ======================= */
 
-const state = { currentId: SONGS[0].id, keyBySong: {}, viewMode: 'full', removedBySong: {}, orderBySong: {} };
+const state = { currentId: SONGS[0].id, keyBySong: {}, viewMode: 'full', removedBySong: {}, orderBySong: {}, layout: '1col', focusMode: false, focusPos: 0 };
 let dragSourceIdx = null;
 
 function getOrder(song){
@@ -1359,17 +1477,18 @@ function renderChunk(chunk, steps, useFlats){
   return `<span class="chunk"><span class="chord">${esc(chord)}</span><span class="lyric">${esc(chunk.l) || '&nbsp;'}</span></span>`;
 }
 
-function renderSection(section, idx, steps, useFlats, repeatInfo){
+function renderSection(section, idx, steps, useFlats, repeatInfo, focused){
   const meta = sectionMeta(section);
   const anchorId = `sec-${idx}`;
   const chordOnly = !section.lines && (section.chordLine || section.chordLine2) ? ' chord-only' : '';
+  const focusedCls = focused ? ' focused' : '';
 
   const handle = `<span class="drag-handle" draggable="true" data-idx="${idx}" title="Drag to reorder">
     <svg viewBox="0 0 10 16" fill="currentColor"><circle cx="2.5" cy="2" r="1.4"/><circle cx="7.5" cy="2" r="1.4"/><circle cx="2.5" cy="8" r="1.4"/><circle cx="7.5" cy="8" r="1.4"/><circle cx="2.5" cy="14" r="1.4"/><circle cx="7.5" cy="14" r="1.4"/></svg>
   </span>`;
 
   if(repeatInfo && repeatInfo.isRepeat){
-    return `<div class="section-card compact${chordOnly}" id="${anchorId}" data-idx="${idx}" style="--badge-color:${meta.color}">
+    return `<div class="section-card compact${chordOnly}${focusedCls}" id="${anchorId}" data-idx="${idx}" style="--badge-color:${meta.color}">
       <div class="section-card-head">
         ${handle}
         <span class="badge">${meta.abbr}</span>
@@ -1393,7 +1512,7 @@ function renderSection(section, idx, steps, useFlats, repeatInfo){
   if(section.lines){
     body += section.lines.map(line=>`<div class="lyric-line">${line.map(ch=>renderChunk(ch, steps, useFlats)).join('')}</div>`).join('');
   }
-  return `<div class="section-card${chordOnly}" id="${anchorId}" data-idx="${idx}" style="--badge-color:${meta.color}">
+  return `<div class="section-card${chordOnly}${focusedCls}" id="${anchorId}" data-idx="${idx}" style="--badge-color:${meta.color}">
     <div class="section-card-head">
       ${handle}
       <span class="badge">${meta.abbr}</span>
@@ -1410,6 +1529,8 @@ function renderSection(section, idx, steps, useFlats, repeatInfo){
 function renderMain(){
   const song = SONGS.find(s=>s.id===state.currentId);
   const main = document.getElementById('main');
+  const appEl = document.querySelector('.app');
+  if(appEl) appEl.classList.toggle('focus-active', !!(state.focusMode && !song.pending));
 
   if(song.pending){
     main.innerHTML = `
@@ -1433,6 +1554,12 @@ function renderMain(){
   const removedStack = state.removedBySong[song.id] || [];
   const order = getOrder(song);
   const visibleIdx = order.filter(i=>!removedStack.includes(i));
+
+  if(state.focusMode){
+    renderFocusView(song, steps, useFlats);
+    return;
+  }
+
   const keyOptions = ALL_KEYS.map(k=>`<option value="${k}" ${k===currentKey?'selected':''}>${k}</option>`).join('');
   const nav = visibleIdx.map(idx=>{
     const sec = song.sections[idx];
@@ -1473,7 +1600,7 @@ function renderMain(){
           <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 2.5h7l3 3v12a.5.5 0 0 1-.5.5h-9.5a.5.5 0 0 1-.5-.5v-14a.5.5 0 0 1 .5-.5Z"/><path d="M12 2.5V6h3"/><path d="M7 14h6M7 11h6"/></svg>
           Save as PDF
         </button>
-        <button class="pdf-btn" id="presentBtn" title="Show lyric slides for projection">
+        <button class="pdf-btn" id="presentBtn" title="Open lyric slides in a separate window you can drag to a second display">
           <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="4" width="16" height="10.5" rx="1.2"/><path d="M7.5 17.5h5M10 14.5v3"/></svg>
           Present
         </button>
@@ -1539,7 +1666,7 @@ function renderMain(){
     window.print();
     setTimeout(restore, 3000); // fallback for browsers that skip afterprint on "Save as PDF"
   });
-  document.getElementById('presentBtn').addEventListener('click', ()=> openSlides(song));
+  document.getElementById('presentBtn').addEventListener('click', ()=> enterFocusMode(song));
   document.getElementById('keySelect').addEventListener('change', e=>{
     state.keyBySong[song.id] = e.target.value; renderAll();
   });
@@ -1560,6 +1687,95 @@ function renderMain(){
       document.getElementById(el.dataset.target).scrollIntoView({behavior:'smooth', block:'start'});
     });
   });
+}
+
+// Distraction-free chart view used while presenting: hides everything but
+// the section cards, highlights + auto-scrolls to the section in focus, and
+// (via syncPresentToFocus) mirrors that section to the projector window.
+// A section too long for one projected slide gets rendered here as its own
+// chart card per part — same chunk-splitting boundaries as buildSlideGroups
+// uses for the projector, so what's on screen always matches what the chart
+// shows. Chord summary lines (chordLine/chordLine2) only repeat on part 1.
+function renderFocusPartialCard(section, sectionIdx, steps, useFlats, position, focused){
+  const meta = sectionMeta(section);
+  const focusedCls = focused ? ' focused' : '';
+  const partSuffix = position.parts > 1
+    ? ` <span class="section-part">(${position.part}/${position.parts})</span>`
+    : '';
+
+  let body = '';
+  if(position.part === 1){
+    if(section.chordLine){
+      body += `<div class="chord-line">${section.chordLine.map(c=>`<span class="chord-pill">${esc(transposeLabel(c, steps, useFlats))}</span>`).join('')}</div>`;
+    }
+    if(section.chordLine2){
+      body += `<div class="chord-line" style="margin-top:8px;">${section.chordLine2.map(c=>`<span class="chord-pill">${esc(transposeLabel(c, steps, useFlats))}</span>`).join('')}</div>`;
+    }
+  }
+  const [start, end] = position.range;
+  body += section.lines.slice(start, end)
+    .map(line=>`<div class="lyric-line">${line.map(ch=>renderChunk(ch, steps, useFlats)).join('')}</div>`)
+    .join('');
+
+  return `<div class="section-card${focusedCls}" id="sec-${sectionIdx}-p${position.part}" style="--badge-color:${meta.color}">
+    <div class="section-card-head">
+      <span class="badge">${meta.abbr}</span>
+      <span class="section-label">${meta.label}${partSuffix}</span>
+    </div>
+    ${body}
+  </div>`;
+}
+
+function renderFocusView(song, steps, useFlats){
+  const main = document.getElementById('main');
+  const groups = buildSlideGroups(song);
+  const positions = flattenFocusPositions(groups);
+
+  if(!positions.length){
+    main.innerHTML = `
+      <div class="focus-bar">
+        <button class="focus-exit" id="focusExit">&times; Exit Focus</button>
+        <div class="focus-title">${esc(song.title)}</div>
+        <div class="focus-counter"></div>
+      </div>
+      <div class="empty-state"><h3>Nothing to focus on</h3><p>Every section has been removed from this chart.</p></div>`;
+    document.getElementById('focusExit').addEventListener('click', exitFocusMode);
+    return;
+  }
+
+  state.focusPos = Math.max(0, Math.min(positions.length - 1, state.focusPos));
+
+  const cards = positions.map((pos, i)=>{
+    const focused = i === state.focusPos;
+    const section = song.sections[pos.sectionIdx];
+    return pos.range === null
+      ? renderSection(section, pos.sectionIdx, steps, useFlats, null, focused)
+      : renderFocusPartialCard(section, pos.sectionIdx, steps, useFlats, pos, focused);
+  }).join('');
+
+  main.innerHTML = `
+    <div class="focus-bar">
+      <button class="focus-exit" id="focusExit" title="Exit focus mode (Esc)">&times; Exit Focus</button>
+      <div class="focus-title">${esc(song.title)}</div>
+      <div class="focus-counter">${state.focusPos + 1} / ${positions.length}</div>
+    </div>
+    <div class="chart-grid focus-mode-grid${state.viewMode==='lyrics' ? ' hide-chords' : ''}" id="focusGrid">${cards}</div>
+    <div class="focus-nav">
+      <button class="focus-nav-btn" id="focusUp" title="Previous section (↑)" ${state.focusPos===0 ? 'disabled' : ''}>&uarr;</button>
+      <button class="focus-nav-btn" id="focusDown" title="Next section (↓)" ${state.focusPos===positions.length-1 ? 'disabled' : ''}>&darr;</button>
+    </div>
+  `;
+
+  document.getElementById('focusExit').addEventListener('click', exitFocusMode);
+  document.getElementById('focusUp').addEventListener('click', ()=> focusMove(-1));
+  document.getElementById('focusDown').addEventListener('click', ()=> focusMove(1));
+
+  const focusedCard = main.querySelector('.section-card.focused');
+  if(focusedCard && typeof focusedCard.scrollIntoView === 'function'){
+    try{ focusedCard.scrollIntoView({behavior:'smooth', block:'center'}); }catch(e){}
+  }
+
+  syncPresentToFocus(song);
 }
 
 function renderAll(){
@@ -1592,24 +1808,88 @@ function joinLineText(line){
   return out;
 }
 
-// Builds the slide deck for a song from its current visible arrangement
-// (custom order + removed sections applied), ignoring Minimal/Lyrics view
-// settings — a live projection needs every repeat shown, chords stripped.
-function buildSlides(song){
+// Builds one slide-group per *visible* section (custom order + removed
+// sections applied), ignoring Minimal/Lyrics view settings — a live
+// projection needs every repeat shown, chords stripped. A section with no
+// lyrics (an intro, an instrumental break) still gets one blank slide so
+// there's always exactly one group per section — that 1:1 mapping is what
+// lets chart-focus navigation and the projector stay in lockstep.
+// Splits `total` lines into the fewest slides that each hold at most
+// `maxPerSlide`, but — unlike a greedy fill — spreads the remainder across
+// the early slides so no split leaves a lopsided, mostly-empty last slide
+// (10 lines / max 4 => [4,3,3], not [4,4,2]).
+function computeSplitRanges(total, maxPerSlide){
+  if(total <= 0) return [[0, 0]];
+  if(total <= maxPerSlide) return [[0, total]];
+  const numSlides = Math.ceil(total / maxPerSlide);
+  const base = Math.floor(total / numSlides);
+  const remainder = total % numSlides;
+  const ranges = [];
+  let start = 0;
+  for(let i=0; i<numSlides; i++){
+    const size = base + (i < remainder ? 1 : 0);
+    ranges.push([start, start + size]);
+    start += size;
+  }
+  return ranges;
+}
+
+// Builds one slide-group per *visible* section (custom order + removed
+// sections applied), ignoring Minimal/Lyrics view settings — a live
+// projection needs every repeat shown, chords stripped. A section with no
+// lyrics (an intro, an instrumental break) still gets one blank slide, and a
+// section too long for one slide splits into evenly-sized parts — either
+// way every slide traces back to exactly one group. That 1:1 mapping (via
+// flattenFocusPositions) is what lets chart-focus navigation and the
+// projector step through the same sequence in lockstep.
+function buildSlideGroups(song){
   const removedStack = state.removedBySong[song.id] || [];
   const order = getOrder(song);
   const visible = order.filter(i => !removedStack.includes(i));
-  const slides = [];
+  const groups = [];
+  let cursor = 0;
   visible.forEach(idx=>{
     const sec = song.sections[idx];
-    if(!sec.lines) return;
     const label = sectionMeta(sec).label;
-    const textLines = sec.lines.map(joinLineText).filter(Boolean);
-    for(let i=0; i<textLines.length; i += MAX_LINES_PER_SLIDE){
-      slides.push({ label, lines: textLines.slice(i, i + MAX_LINES_PER_SLIDE) });
+    const totalLines = sec.lines ? sec.lines.length : 0;
+
+    if(!totalLines){
+      groups.push({ sectionIdx: idx, label, startIndex: cursor, count: 1, ranges: null, slides: [{ label, lines: [] }] });
+      cursor += 1;
+      return;
+    }
+
+    const ranges = computeSplitRanges(totalLines, MAX_LINES_PER_SLIDE);
+    const slides = ranges.map(([start, end], i)=>{
+      const textLines = sec.lines.slice(start, end).map(joinLineText).filter(Boolean);
+      const partLabel = ranges.length > 1 ? `${label} (${i+1}/${ranges.length})` : label;
+      return { label: partLabel, lines: textLines };
+    });
+    groups.push({ sectionIdx: idx, label, startIndex: cursor, count: slides.length, ranges, slides });
+    cursor += slides.length;
+  });
+  return groups;
+}
+
+function buildSlides(song){
+  return buildSlideGroups(song).reduce((acc, g)=> acc.concat(g.slides), []);
+}
+
+// Flattens slide-groups into one entry per actual slide — the same order
+// and length as buildSlides()'s output — so state.focusPos can index this
+// array directly and always mean "the same slide the projector is showing."
+function flattenFocusPositions(groups){
+  const positions = [];
+  groups.forEach(g=>{
+    if(!g.ranges){
+      positions.push({ sectionIdx: g.sectionIdx, label: g.label, range: null, part: 1, parts: 1 });
+    } else {
+      g.ranges.forEach((range, i)=>{
+        positions.push({ sectionIdx: g.sectionIdx, label: g.label, range, part: i + 1, parts: g.ranges.length });
+      });
     }
   });
-  return slides;
+  return positions;
 }
 
 function renderSlide(){
@@ -1650,18 +1930,241 @@ function closeSlides(){
   document.removeEventListener('keydown', onSlideKeydown);
 }
 
+/* ---- Separate-window presentation (draggable to a second display) ---- */
+// A plain in-page overlay can never leave the browser tab, so true "drag
+// this onto my second monitor" needs a real OS-level window: window.open()
+// gives the operator something with its own title bar they can drag to
+// another display and fullscreen there, independent of this tab.
+
+let presentWin = null;
+let presentPollTimer = null;
+
+function buildPresentHTML(songTitle, slides){
+  const json = JSON.stringify(slides).replace(/</g, '\\u003c');
+  return `<!doctype html>
+<title>Presenting: ${songTitle.replace(/</g,'&lt;')}</title>
+<style>
+  :root{color-scheme:dark;}
+  *{box-sizing:border-box;}
+  html,body{margin:0; height:100%; background:#0a0a0a; color:#f5f3ec; font-family:Georgia,'Times New Roman',serif;}
+  body{display:flex; align-items:center; justify-content:center; flex-direction:column; padding:8vh 9vw; text-align:center; user-select:none; touch-action:none; overflow:hidden;}
+  .p-label{position:fixed; top:22px; left:28px; font-family:monospace; font-size:.75rem; letter-spacing:.06em; text-transform:uppercase; color:rgba(245,243,236,.4);}
+  .p-text{font-weight:600; font-size:clamp(1.8rem, 5vw, 4.2rem); line-height:1.35; max-width:100%;}
+  .p-counter{position:fixed; bottom:22px; right:28px; font-family:monospace; font-size:.75rem; color:rgba(245,243,236,.4);}
+  .p-nav{position:fixed; top:50%; transform:translateY(-50%); width:52px; height:52px; border-radius:50%; border:none; cursor:pointer; background:rgba(245,243,236,.08); color:#f5f3ec; font-size:1.7rem; display:flex; align-items:center; justify-content:center;}
+  .p-nav:hover{background:rgba(245,243,236,.18);}
+  .p-prev{left:18px;} .p-next{right:18px;}
+  .p-fs{position:fixed; top:18px; right:22px; background:none; border:none; cursor:pointer; color:rgba(245,243,236,.55); font-size:.85rem; font-family:monospace; padding:6px;}
+  .p-fs:hover{color:#f5f3ec;}
+</style>
+<div class="p-label" id="label"></div>
+<div class="p-text" id="text"></div>
+<div class="p-counter" id="counter"></div>
+<button class="p-nav p-prev" id="prev" aria-label="Previous">&lsaquo;</button>
+<button class="p-nav p-next" id="next" aria-label="Next">&rsaquo;</button>
+<button class="p-fs" id="fs">Fullscreen (F)</button>
+<script>
+  var SLIDES = ${json};
+  var i = 0;
+  function render(){
+    var labelEl = document.getElementById('label');
+    var textEl = document.getElementById('text');
+    var counterEl = document.getElementById('counter');
+    if(!SLIDES.length){
+      textEl.textContent = 'No lyrics to project for this song yet.';
+      labelEl.textContent = ''; counterEl.textContent = '';
+      return;
+    }
+    var s = SLIDES[i];
+    labelEl.textContent = s.label;
+    textEl.innerHTML = s.lines.map(function(l){
+      var d = document.createElement('div'); d.textContent = l; return d.innerHTML;
+    }).join('<br>');
+    counterEl.textContent = (i + 1) + ' / ' + SLIDES.length;
+    if(window.opener){ try{ window.opener.postMessage({type:'worship-present-state', index:i, total:SLIDES.length}, '*'); }catch(e){} }
+  }
+  function next(){ if(i < SLIDES.length - 1){ i++; render(); } }
+  function prev(){ if(i > 0){ i--; render(); } }
+  document.getElementById('next').addEventListener('click', next);
+  document.getElementById('prev').addEventListener('click', prev);
+  document.getElementById('fs').addEventListener('click', function(){
+    try{
+      if(document.fullscreenElement){ document.exitFullscreen(); }
+      else{ document.documentElement.requestFullscreen(); }
+    }catch(e){}
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key==='ArrowRight' || e.key==='ArrowDown' || e.key===' '){ e.preventDefault(); next(); }
+    else if(e.key==='ArrowLeft' || e.key==='ArrowUp'){ e.preventDefault(); prev(); }
+    else if(e.key==='f' || e.key==='F'){ document.getElementById('fs').click(); }
+  });
+  var sx = null, sy = null;
+  document.addEventListener('touchstart', function(e){
+    var t = e.changedTouches[0]; sx = t.clientX; sy = t.clientY;
+  }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    if(sx===null) return;
+    var t = e.changedTouches[0];
+    var dx = t.clientX - sx, dy = t.clientY - sy;
+    sx = null;
+    if(Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5){ if(dx < 0) next(); else prev(); }
+  }, {passive:true});
+  window.addEventListener('message', function(e){
+    if(!e.data) return;
+    if(e.data.type==='worship-present-nav'){
+      if(e.data.dir==='next') next();
+      else if(e.data.dir==='prev') prev();
+    } else if(e.data.type==='worship-present-goto'){
+      var idx = e.data.index;
+      if(typeof idx === 'number' && idx >= 0 && idx < SLIDES.length && idx !== i){ i = idx; render(); }
+    }
+  });
+  render();
+<\/script>`;
+}
+
+function showPresentBar(total){
+  document.getElementById('presentBar').hidden = false;
+  document.getElementById('presentBarCounter').textContent = `1 / ${total}`;
+}
+function hidePresentBar(){
+  document.getElementById('presentBar').hidden = true;
+}
+
+function openPresentWindow(song){
+  const slides = buildSlides(song);
+  if(presentPollTimer){ clearInterval(presentPollTimer); presentPollTimer = null; }
+  const w = window.open('', 'worshipPresentDisplay', 'width=1000,height=700,resizable=yes,menubar=no,toolbar=no,location=no,status=no');
+  if(!w){
+    // Popup blocked — fall back to the in-tab overlay so Present still works.
+    openSlides(song);
+    return;
+  }
+  presentWin = w;
+  presentWin.document.open();
+  presentWin.document.write(buildPresentHTML(song.title, slides));
+  presentWin.document.close();
+  try{ presentWin.focus(); }catch(e){}
+  showPresentBar(slides.length);
+  presentPollTimer = setInterval(()=>{
+    if(!presentWin || presentWin.closed){
+      hidePresentBar();
+      if(presentPollTimer){ clearInterval(presentPollTimer); presentPollTimer = null; }
+      presentWin = null;
+      if(state.focusMode) exitFocusMode();
+    }
+  }, 800);
+}
+
+/* ---- Chart focus mode: navigate sections on the chart, mirrored live to the projector ---- */
+
+function onFocusKeydown(e){
+  if(!state.focusMode) return;
+  // Focus mode owns arrow/space/escape while active — stop the fallback
+  // slides-overlay's own keydown handler (bound to the same document) from
+  // also reacting and fighting over the same slide index.
+  e.stopImmediatePropagation();
+  if(e.key==='ArrowDown' || e.key==='ArrowRight' || e.key===' '){ e.preventDefault(); focusMove(1); }
+  else if(e.key==='ArrowUp' || e.key==='ArrowLeft'){ e.preventDefault(); focusMove(-1); }
+  else if(e.key==='Escape'){ exitFocusMode(); }
+}
+
+function enterFocusMode(song){
+  state.focusMode = true;
+  state.focusPos = 0;
+  document.addEventListener('keydown', onFocusKeydown);
+  openPresentWindow(song);
+  renderAll();
+}
+
+function exitFocusMode(){
+  state.focusMode = false;
+  document.removeEventListener('keydown', onFocusKeydown);
+  renderAll();
+}
+
+function focusMove(delta){
+  const song = SONGS.find(s=>s.id===state.currentId);
+  if(!song || song.pending) return;
+  const positions = flattenFocusPositions(buildSlideGroups(song));
+  if(!positions.length) return;
+  state.focusPos = Math.max(0, Math.min(positions.length - 1, state.focusPos + delta));
+  renderAll();
+}
+
+// Tells the projector (popup, or the in-tab fallback overlay) to jump to the
+// slide in focus. state.focusPos now indexes the same flattened slide list
+// buildSlides() produces, so no section-to-slide lookup is needed — the
+// chart position IS the slide index.
+function syncPresentToFocus(song){
+  if(!state.focusMode) return;
+  if(presentWin && !presentWin.closed){
+    try{ presentWin.postMessage({type:'worship-present-goto', index: state.focusPos}, '*'); }catch(e){}
+  } else if(!document.getElementById('slidesOverlay').hidden){
+    slideState.slides = buildSlides(song);
+    slideState.index = state.focusPos;
+    renderSlide();
+  }
+}
+
+// Vertical swipe on the chart itself moves focus by one section (up = prior,
+// down = next) — same gesture direction as the existing slide-swipe.
+let focusTouchStartX = null, focusTouchStartY = null;
+document.addEventListener('touchstart', e=>{
+  if(!state.focusMode) return;
+  const t = e.changedTouches[0];
+  focusTouchStartX = t.clientX; focusTouchStartY = t.clientY;
+}, {passive:true});
+document.addEventListener('touchend', e=>{
+  if(!state.focusMode || focusTouchStartX===null) return;
+  const t = e.changedTouches[0];
+  const dx = t.clientX - focusTouchStartX;
+  const dy = t.clientY - focusTouchStartY;
+  focusTouchStartX = null;
+  if(Math.abs(dy) > 40 && Math.abs(dy) > Math.abs(dx) * 1.5){
+    if(dy < 0) focusMove(1); else focusMove(-1);
+  }
+}, {passive:true});
+
 (function initSlidesOverlay(){
   const overlay = document.getElementById('slidesOverlay');
   document.getElementById('slideNext').addEventListener('click', slideNext);
   document.getElementById('slidePrev').addEventListener('click', slidePrev);
   document.getElementById('slideClose').addEventListener('click', closeSlides);
+  document.getElementById('presentBarPrev').addEventListener('click', ()=>{
+    if(presentWin && !presentWin.closed) presentWin.postMessage({type:'worship-present-nav', dir:'prev'}, '*');
+  });
+  document.getElementById('presentBarNext').addEventListener('click', ()=>{
+    if(presentWin && !presentWin.closed) presentWin.postMessage({type:'worship-present-nav', dir:'next'}, '*');
+  });
+  document.getElementById('presentBarClose').addEventListener('click', ()=>{
+    if(presentWin && !presentWin.closed) presentWin.close();
+    hidePresentBar();
+    if(state.focusMode) exitFocusMode();
+  });
+  window.addEventListener('message', e=>{
+    if(e.data && e.data.type==='worship-present-state'){
+      document.getElementById('presentBarCounter').textContent = `${e.data.index + 1} / ${e.data.total}`;
+      // Mirror the projector's own navigation (its arrow keys/swipe) back onto
+      // the chart — focusPos and the projector's slide index are the same
+      // number now, so this is a direct assignment, not a lookup.
+      if(state.focusMode && e.data.index !== state.focusPos){
+        const song = SONGS.find(s=>s.id===state.currentId);
+        if(song && !song.pending){
+          state.focusPos = e.data.index;
+          renderAll();
+        }
+      }
+    }
+  });
   let touchStartX = null, touchStartY = null;
   overlay.addEventListener('touchstart', e=>{
+    if(state.focusMode) return; // chart focus mode owns swipe navigation instead
     const t = e.changedTouches[0];
     touchStartX = t.clientX; touchStartY = t.clientY;
   }, {passive:true});
   overlay.addEventListener('touchend', e=>{
-    if(touchStartX===null) return;
+    if(state.focusMode || touchStartX===null) return;
     const t = e.changedTouches[0];
     const dx = t.clientX - touchStartX;
     const dy = t.clientY - touchStartY;
@@ -1672,5 +2175,25 @@ function closeSlides(){
   }, {passive:true});
 })();
 
+(function initLayoutToggle(){
+  const wrap = document.getElementById('layoutToggle');
+  if(!wrap) return;
+  wrap.addEventListener('click', e=>{
+    const btn = e.target.closest('.layout-btn');
+    if(!btn) return;
+    state.layout = btn.dataset.layout;
+    applyLayout();
+  });
+})();
+
+function applyLayout(){
+  const app = document.querySelector('.app');
+  if(app) app.classList.toggle('layout-1col', state.layout === '1col');
+  document.querySelectorAll('#layoutToggle .layout-btn').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.layout === state.layout);
+  });
+}
+
+applyLayout();
 renderAll();
 </script>
