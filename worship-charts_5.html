@@ -295,6 +295,14 @@
   .app.layout-1col .song-meta{width:100%; min-width:0;}
   .app.layout-1col .song-title, .app.layout-1col .song-artist{max-width:100%;}
   .app.layout-1col .chart-grid{column-count:1 !important; column-width:auto !important; max-width:720px;}
+  /* Single-column is the mobile-friendly mode — size chords/lyrics up so
+     they're easy to read at arm's length on a phone. */
+  .app.layout-1col .chord-pill{font-size:1rem; padding:4px 10px;}
+  .app.layout-1col .chunk{gap:5px; margin-right:20px;}
+  .app.layout-1col .chunk .chord{font-size:1.3rem;}
+  .app.layout-1col .chunk .lyric{font-size:1.35rem; line-height:1.35;}
+  .app.layout-1col .chord-line{gap:10px;}
+  .app.layout-1col .lyric-line{row-gap:10px; margin-bottom:16px;}
 
   @media (max-width: 860px){
     .app{flex-direction:column;}
@@ -379,6 +387,17 @@
   }
 
   .focus-mode-grid{columns:1; max-width:760px; margin:0 auto; padding-bottom:90px;}
+  /* Presentation view for the musician playing along — bigger still than the
+     regular single-column chart, since it's read at a glance while playing.
+     Selectors are chained with .chart-grid (always present alongside
+     .focus-mode-grid) purely to out-specificity the .app.layout-1col text
+     rules above, which would otherwise win the cascade tie and mask these. */
+  .focus-mode-grid.chart-grid .chord-pill{font-size:1.05rem; padding:4px 10px;}
+  .focus-mode-grid.chart-grid .chunk{gap:5px; margin-right:22px;}
+  .focus-mode-grid.chart-grid .chunk .chord{font-size:1.4rem;}
+  .focus-mode-grid.chart-grid .chunk .lyric{font-size:1.45rem; line-height:1.35;}
+  .focus-mode-grid.chart-grid .chord-line{gap:11px;}
+  .focus-mode-grid.chart-grid .lyric-line{row-gap:11px; margin-bottom:18px;}
   .focus-mode-grid .section-card{
     opacity:.7; transform:scale(.99);
     transition:opacity .25s ease, transform .25s ease, box-shadow .25s ease;
