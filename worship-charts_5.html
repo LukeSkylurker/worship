@@ -1,0 +1,1582 @@
+<!doctype html>
+<title>Sunday Set Charts</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+  :root{
+    --bg:#EEEAE0;
+    --surface:#FFFFFF;
+    --surface-2:#F6F2E8;
+    --ink:#22252A;
+    --ink-dim:#5C5F66;
+    --ink-faint:#8C8F94;
+    --border:#DFDACA;
+    --border-soft:#E9E4D5;
+    --accent:#AD7A34;
+    --accent-strong:#8C5F22;
+    --chord:#8C5F22;
+    --sec-intro:#3F7D74;
+    --sec-verse:#4C5A93;
+    --sec-chorus:#AD7A34;
+    --sec-bridge:#9C4B5A;
+    --sec-inst:#6B6F76;
+    --sec-break:#6B3F5C;
+    --sec-tag:#3F7D74;
+    --sec-outro:#6B6F76;
+    --shadow: 0 1px 2px rgba(30,25,15,.07), 0 6px 18px rgba(30,25,15,.06);
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#16181C;
+      --surface:#1F2126;
+      --surface-2:#1A1C21;
+      --ink:#EEEBE3;
+      --ink-dim:#A8ABB1;
+      --ink-faint:#787B81;
+      --border:#34373E;
+      --border-soft:#2A2D33;
+      --accent:#D7A95D;
+      --accent-strong:#E8BD79;
+      --chord:#E8BD79;
+      --sec-intro:#62AB9F;
+      --sec-verse:#8391D6;
+      --sec-chorus:#D7A95D;
+      --sec-bridge:#CC7C95;
+      --sec-inst:#9DA1A9;
+      --sec-break:#A96FA4;
+      --sec-tag:#62AB9F;
+      --sec-outro:#9DA1A9;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 22px rgba(0,0,0,.4);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#16181C;
+    --surface:#1F2126;
+    --surface-2:#1A1C21;
+    --ink:#EEEBE3;
+    --ink-dim:#A8ABB1;
+    --ink-faint:#787B81;
+    --border:#34373E;
+    --border-soft:#2A2D33;
+    --accent:#D7A95D;
+    --accent-strong:#E8BD79;
+    --chord:#E8BD79;
+    --sec-intro:#62AB9F;
+    --sec-verse:#8391D6;
+    --sec-chorus:#D7A95D;
+    --sec-bridge:#CC7C95;
+    --sec-inst:#9DA1A9;
+    --sec-break:#A96FA4;
+    --sec-tag:#62AB9F;
+    --sec-outro:#9DA1A9;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 22px rgba(0,0,0,.4);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Public Sans', system-ui, sans-serif;
+  }
+  h1,h2,h3{font-family:'Fraunces', Georgia, serif; text-wrap:balance;}
+
+  .app{display:flex; min-height:100vh; max-width:1400px; margin:0 auto;}
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    width:290px; flex-shrink:0;
+    background:var(--surface-2);
+    border-right:1px solid var(--border-soft);
+    padding:26px 18px 40px;
+    overflow-y:auto;
+  }
+  .brand{padding:2px 8px 20px;}
+  .brand .kicker{
+    font-family:'IBM Plex Mono', monospace; font-size:.68rem; font-weight:600;
+    letter-spacing:.11em; text-transform:uppercase; color:var(--accent-strong);
+  }
+  .brand h1{font-size:1.5rem; font-weight:600; margin:.2em 0 0; color:var(--ink); line-height:1.15;}
+  .brand p{margin:.35em 0 0; font-size:.82rem; color:var(--ink-dim);}
+
+  .song-list{list-style:none; margin:18px 0 0; padding:0; display:flex; flex-direction:column; gap:3px;}
+  .song-item{
+    display:flex; align-items:center; gap:10px;
+    padding:9px 10px; border-radius:10px; cursor:pointer;
+    border:1px solid transparent;
+  }
+  .song-item:hover{background:var(--surface);}
+  .song-item.active{background:var(--surface); border-color:var(--border); box-shadow:var(--shadow);}
+  .song-num{
+    font-family:'IBM Plex Mono', monospace; font-size:.72rem; color:var(--ink-faint);
+    width:1.4em; flex-shrink:0; text-align:right;
+  }
+  .song-item.active .song-num{color:var(--accent-strong); font-weight:600;}
+  .song-meta{flex:1; min-width:0;}
+  .song-title{font-size:.87rem; font-weight:600; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .song-artist{font-size:.74rem; color:var(--ink-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .song-key-pill{
+    font-family:'IBM Plex Mono', monospace; font-size:.68rem; font-weight:600;
+    color:var(--ink-dim); border:1px solid var(--border); border-radius:6px;
+    padding:2px 6px; flex-shrink:0;
+  }
+  .song-item.pending .song-title{color:var(--ink-faint); font-weight:500;}
+  .song-key-pill.empty{color:var(--ink-faint); border-style:dashed;}
+
+  /* ---------- Main ---------- */
+  .main{flex:1; min-width:0; padding:34px 44px 80px; overflow-y:auto;}
+
+  .chart-header{display:flex; justify-content:space-between; align-items:flex-start; gap:24px; flex-wrap:wrap; margin-bottom:20px;}
+  .chart-header h2{font-size:2.1rem; font-weight:600; margin:0; color:var(--ink); line-height:1.1;}
+  .chart-header .artist{margin:.3em 0 0; font-size:1rem; color:var(--ink-dim); font-style:italic; font-family:'Fraunces', serif;}
+
+  .meta-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .meta-tag{
+    font-family:'IBM Plex Mono', monospace; font-size:.72rem; font-weight:500; color:var(--ink-dim);
+    border:1px solid var(--border); border-radius:7px; padding:5px 9px; background:var(--surface);
+  }
+  .view-toggle{
+    display:flex; border:1px solid var(--border); border-radius:9px; overflow:hidden;
+    background:var(--surface); box-shadow:var(--shadow);
+  }
+  .toggle-btn{
+    font-family:'IBM Plex Mono', monospace; font-size:.72rem; font-weight:600;
+    padding:7px 13px; border:none; background:transparent; color:var(--ink-dim); cursor:pointer;
+  }
+  .toggle-btn:not(:last-child){border-right:1px solid var(--border);}
+  .toggle-btn.active{background:var(--accent); color:#fff;}
+  .toggle-btn:hover:not(.active){color:var(--ink);}
+
+  .chart-grid.hide-chords .section-card.chord-only{display:none;}
+  .chart-grid.hide-chords .chord-line{display:none;}
+  .chart-grid.hide-chords .chunk .chord{display:none;}
+  .chart-grid.hide-chords .chunk{gap:0;}
+  .section-nav.hide-chords .nav-pill.chord-only{display:none;}
+
+  .key-control{
+    display:flex; align-items:center; gap:8px;
+    background:var(--surface); border:1px solid var(--border); border-radius:11px;
+    padding:6px 8px 6px 14px; box-shadow:var(--shadow);
+  }
+  .key-control label{font-size:.72rem; font-weight:600; color:var(--ink-faint); letter-spacing:.06em; text-transform:uppercase;}
+  .key-control select{
+    font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:.95rem;
+    color:var(--ink); background:transparent; border:none; padding:2px 4px; cursor:pointer;
+  }
+  .step-btn{
+    width:26px; height:26px; border-radius:7px; border:1px solid var(--border);
+    background:var(--surface-2); color:var(--ink); font-size:.95rem; line-height:1; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .step-btn:hover{border-color:var(--accent); color:var(--accent-strong);}
+  .reset-link{
+    font-family:'IBM Plex Mono', monospace; font-size:.68rem; color:var(--accent-strong);
+    background:none; border:none; cursor:pointer; text-decoration:underline; padding:0 2px;
+  }
+
+  .pdf-btn{
+    display:inline-flex; align-items:center; gap:7px;
+    font-family:'IBM Plex Mono', monospace; font-size:.72rem; font-weight:600;
+    color:var(--ink); background:var(--surface); border:1px solid var(--border);
+    border-radius:9px; padding:8px 13px; cursor:pointer; box-shadow:var(--shadow);
+  }
+  .pdf-btn:hover{border-color:var(--accent); color:var(--accent-strong);}
+  .pdf-btn svg{width:13px; height:13px; flex-shrink:0;}
+
+  .print-only{display:none;}
+
+  .section-nav{display:flex; flex-wrap:wrap; gap:7px; margin:22px 0 26px;}
+  .nav-pill{
+    display:inline-flex; align-items:center; gap:6px;
+    padding:4px 11px 4px 5px; border-radius:999px; border:1px solid var(--border);
+    background:var(--surface); cursor:pointer; color:var(--ink-dim);
+    font-family:'IBM Plex Mono', monospace; font-size:.71rem; font-weight:600;
+  }
+  .nav-pill:hover{border-color:var(--pill-color, var(--accent));}
+  .nav-dot{
+    width:17px; height:17px; border-radius:50%; border:2px solid var(--pill-color, var(--accent));
+    color:var(--pill-color, var(--accent)); display:flex; align-items:center; justify-content:center;
+    font-size:.58rem; font-weight:700; flex-shrink:0;
+  }
+
+  .chart-grid{columns: 2 400px; column-gap:18px;}
+  .section-card{
+    break-inside:avoid; display:block;
+    background:var(--surface); border:1px solid var(--border); border-radius:14px;
+    padding:18px 20px 20px; margin:0 0 18px; box-shadow:var(--shadow); scroll-margin-top:20px;
+    transition:opacity .15s, box-shadow .1s;
+  }
+  .section-card.dragging{opacity:.35;}
+  .section-card.drag-over-top{box-shadow: inset 0 3px 0 0 var(--accent), var(--shadow);}
+  .section-card.drag-over-bottom{box-shadow: inset 0 -3px 0 0 var(--accent), var(--shadow);}
+  .section-card-head{display:flex; align-items:center; gap:10px; margin-bottom:14px;}
+  .drag-handle{
+    cursor:grab; color:var(--ink-faint); display:flex; align-items:center; justify-content:center;
+    width:18px; height:18px; flex-shrink:0; margin-right:-2px;
+  }
+  .drag-handle:hover{color:var(--ink-dim);}
+  .drag-handle:active{cursor:grabbing;}
+  .drag-handle svg{width:11px; height:16px;}
+  .badge{
+    width:32px; height:32px; border-radius:50%; border:2px solid var(--badge-color, var(--accent));
+    color:var(--badge-color, var(--accent)); display:flex; align-items:center; justify-content:center;
+    font-family:'IBM Plex Mono', monospace; font-weight:700; font-size:.72rem; flex-shrink:0;
+  }
+  .section-label{font-weight:700; font-size:.83rem; letter-spacing:.05em; text-transform:uppercase; color:var(--ink);}
+  .head-right{margin-left:auto; display:flex; align-items:center; gap:10px;}
+  .section-note{font-size:.72rem; font-style:italic; color:var(--ink-faint); white-space:nowrap;}
+  .section-close{
+    width:22px; height:22px; border-radius:6px; border:1px solid transparent; flex-shrink:0;
+    background:transparent; color:var(--ink-faint); font-size:.78rem; line-height:1;
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  .section-close:hover{background:var(--surface-2); border-color:var(--border); color:#B23B3B;}
+  .repeat-tag{
+    font-family:'IBM Plex Mono', monospace; font-size:.72rem; font-style:italic;
+    color:var(--ink-faint);
+  }
+  .section-card.compact{padding:13px 20px;}
+  .section-card.compact .section-card-head{margin-bottom:0;}
+
+  .chord-line{display:flex; flex-wrap:wrap; gap:8px;}
+  .chord-pill{
+    font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:.8rem; color:var(--chord);
+    background:var(--surface-2); border:1px solid var(--border-soft); border-radius:6px; padding:3px 8px;
+  }
+
+  .lyric-line{display:flex; flex-wrap:wrap; align-items:flex-end; row-gap:8px; margin-bottom:13px;}
+  .lyric-line:last-child{margin-bottom:0;}
+  .chunk{display:flex; flex-direction:column; gap:3px; margin-right:16px;}
+  .chunk:last-child{margin-right:0;}
+  .chunk .chord{
+    font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:.95rem;
+    color:var(--chord); line-height:1; min-height:1em; white-space:nowrap;
+  }
+  .chunk .lyric{font-size:1rem; color:var(--ink); line-height:1.3; white-space:pre;}
+
+  .empty-state{
+    max-width:460px; margin-top:40px; padding:26px 28px; background:var(--surface);
+    border:1px dashed var(--border); border-radius:14px; color:var(--ink-dim);
+  }
+  .empty-state h3{margin:0 0 8px; font-size:1.2rem; color:var(--ink);}
+  .empty-state p{font-size:.9rem; line-height:1.55; margin:0 0 10px;}
+  .empty-state code{
+    font-family:'IBM Plex Mono', monospace; font-size:.78rem; background:var(--surface-2);
+    padding:1px 6px; border-radius:5px; border:1px solid var(--border-soft);
+  }
+
+  @media (max-width: 860px){
+    .app{flex-direction:column;}
+    .sidebar{
+      width:100%; border-right:none; border-bottom:1px solid var(--border-soft);
+      padding:16px; max-height:none;
+    }
+    .song-list{flex-direction:row; overflow-x:auto; gap:8px; padding-bottom:4px;}
+    .song-item{flex-direction:column; align-items:flex-start; min-width:150px; gap:4px;}
+    .main{padding:24px 18px 60px;}
+    .chart-grid{columns: 1 100%;}
+  }
+
+  @page{ margin: 14mm; }
+  @media print{
+    :root, :root[data-theme="dark"]{
+      --bg:#fff; --surface:#fff; --surface-2:#f7f7f5;
+      --ink:#161616; --ink-dim:#454545; --ink-faint:#6f6f6f;
+      --border:#cfcabb; --border-soft:#e2ded0;
+      --chord:#7a4f19; --shadow:none;
+    }
+    body{background:#fff;}
+    .app{display:block; max-width:none;}
+    .sidebar, .view-toggle, .section-nav, .pdf-btn, #undoBtn, .section-close, .drag-handle,
+    .key-control .step-btn, .key-control select,
+    .key-control label, .reset-link{ display:none !important; }
+    .print-only{display:inline-block;}
+    .main{padding:0; overflow:visible;}
+    .chart-header{margin-bottom:14px;}
+    .key-control{border:none; box-shadow:none; padding:0; background:transparent;}
+    .chart-grid{columns:1; column-count:1;}
+    .section-card{box-shadow:none; break-inside:avoid; page-break-inside:avoid;}
+    .slides-overlay{display:none !important;}
+  }
+
+  .slides-overlay{
+    position:fixed; inset:0; z-index:1000; background:#0a0a0a; color:#f5f3ec;
+    display:flex; align-items:center; justify-content:center; flex-direction:column;
+    padding:8vh 9vw; text-align:center; user-select:none; touch-action:none;
+  }
+  .slides-overlay[hidden]{display:none;}
+  .slide-label{
+    position:absolute; top:26px; left:32px;
+    font-family:'IBM Plex Mono', monospace; font-size:.78rem; letter-spacing:.06em;
+    text-transform:uppercase; color:rgba(245,243,236,.4);
+  }
+  .slide-text{
+    font-family:'Fraunces', serif; font-weight:600; font-size:clamp(1.6rem, 4.6vw, 3.6rem);
+    line-height:1.35; max-width:100%; white-space:normal;
+  }
+  .slide-counter{
+    position:absolute; bottom:26px; right:32px;
+    font-family:'IBM Plex Mono', monospace; font-size:.78rem; color:rgba(245,243,236,.4);
+  }
+  .slide-nav{
+    position:absolute; top:50%; transform:translateY(-50%);
+    width:52px; height:52px; border-radius:50%; border:none; cursor:pointer;
+    background:rgba(245,243,236,.08); color:#f5f3ec; font-size:1.7rem; line-height:1;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .slide-nav:hover{background:rgba(245,243,236,.18);}
+  .slide-prev{left:18px;}
+  .slide-next{right:18px;}
+  .slide-close{
+    position:absolute; top:18px; right:22px; background:none; border:none; cursor:pointer;
+    color:rgba(245,243,236,.55); font-size:1.6rem; line-height:1; padding:6px;
+  }
+  .slide-close:hover{color:#f5f3ec;}
+  .slide-hint{
+    position:absolute; bottom:26px; left:32px;
+    font-family:'IBM Plex Mono', monospace; font-size:.72rem; color:rgba(245,243,236,.32);
+  }
+  @media (max-width:640px){
+    .slide-nav{width:44px; height:44px; font-size:1.4rem;}
+    .slide-hint{display:none;}
+  }
+
+  ::selection{background:var(--accent); color:#fff;}
+</style>
+
+<div class="app">
+  <nav class="sidebar">
+    <div class="brand">
+      <div class="kicker">Worship Set</div>
+      <h1>Sunday Set Charts</h1>
+      <p>Tap a song, pick your key.</p>
+    </div>
+    <ul class="song-list" id="songList"></ul>
+  </nav>
+  <main class="main" id="main"></main>
+</div>
+
+<div class="slides-overlay" id="slidesOverlay" hidden>
+  <div class="slide-label" id="slideLabel"></div>
+  <div class="slide-text" id="slideText"></div>
+  <div class="slide-counter" id="slideCounter"></div>
+  <div class="slide-hint">&larr; &rarr; or swipe &middot; Esc to exit</div>
+  <button class="slide-nav slide-prev" id="slidePrev" aria-label="Previous slide">&lsaquo;</button>
+  <button class="slide-nav slide-next" id="slideNext" aria-label="Next slide">&rsaquo;</button>
+  <button class="slide-close" id="slideClose" aria-label="Close slides">&times;</button>
+</div>
+
+<script>
+/* ======================= DATA ======================= */
+
+// Reusable chorus for 10,000 Reasons
+const R_CHORUS = [
+  [ {c:'C', l:'Bless the Lord'}, {c:'G', l:'O my soul'} ],
+  [ {c:'D/F#', l:'O'}, {c:'Em', l:'my soul'} ],
+  [ {c:'C', l:'Worship His'}, {c:'G', l:'Holy'}, {c:'Dsus4 D', l:'name'} ],
+  [ {c:'C', l:'Sing like never'}, {c:'Em', l:'before'} ],
+  [ {c:'C', l:'O'}, {c:'D', l:'my'}, {c:'Em', l:'soul'} ],
+  [ {c:'C', l:"I'll worship"}, {c:'D', l:'Your Holy'}, {c:'Gsus4 G', l:'name'} ],
+];
+const R_TAG_FULL = [
+  [ {c:'C', l:'Sing like never'}, {c:'Em', l:'before'} ],
+  [ {c:'C', l:'O'}, {c:'D', l:'my'}, {c:'Em', l:'soul'} ],
+  [ {c:'C', l:"I'll worship"}, {c:'D', l:'Your Holy'}, {c:'Em', l:'name'} ],
+];
+const R_TAG_SHORT = [
+  [ {c:'C', l:"I'll worship"}, {c:'D', l:'Your Holy'}, {c:'Em', l:'name'} ],
+];
+const R_TAG_FINAL = [
+  [ {c:'C', l:"I'll worship"}, {c:'D', l:'Your Holy'}, {c:'G', l:'name'} ],
+];
+
+// Reusable lines for Praise
+const R_PRAISE_REFRAIN = [
+  [ {c:'C', l:'Let everything'} ],
+  [ {c:'', l:'That has breath'} ],
+  [ {c:'', l:'Praise the Lord'} ],
+  [ {c:'', l:'Praise the Lord'} ],
+];
+const R_PRAISE_PRECHORUS = [
+  [ {c:'G', l:"As long as I'm breathing"}, {c:'F', l:"I've got a reason to"} ],
+];
+const R_PRAISE_CHORUS_LINE = [ {c:'Am', l:'Pra-'}, {c:'F', l:'ise the'}, {c:'C', l:'Lord oh my'}, {c:'G', l:'soul'} ];
+const R_PRAISE_QUIET_LINE = [ {c:'Am', l:"I won't be quiet"}, {c:'F', l:'My God is alive'}, {c:'C', l:'How could I keep it i-'}, {c:'G', l:'nside'} ];
+
+// Reusable lines for Jireh
+const R_JIREH_HOOK_E  = [ {c:'B', l:'Jireh'}, {c:'C#m', l:'You'}, {c:'A', l:'are'}, {c:'E', l:'enough'} ];
+const R_JIREH_HOOK_EG = [ {c:'B', l:'Jireh'}, {c:'C#m', l:'You'}, {c:'A', l:'are'}, {c:'E/G#', l:'enough'} ];
+const R_JIREH_CONTENT_LINE = [ {c:'B', l:'I will'}, {c:'C#m', l:'be content'}, {c:'F#m', l:'in every'}, {c:'E', l:'circumstance'} ];
+const R_JIREH_CHORUS2_LINES = [ R_JIREH_HOOK_EG, R_JIREH_HOOK_EG, R_JIREH_CONTENT_LINE, R_JIREH_HOOK_EG ];
+
+// Reusable lines for O Come to the Altar
+const R_ALTAR_CALLING_LINE  = [ {c:'D', l:'Jesus is calling'} ];
+const R_ALTAR_ALLELUIA_LINE = [ {c:'D', l:'Sing alleluia,'}, {c:'A', l:'Christ is risen'} ];
+
+// Reusable line for Waymaker
+const R_WAYMAKER_WORSHIP = [ {c:'B', l:'I worship You,'}, {c:'C#m', l:'I worship You'} ];
+
+// Reusable line for The Stand
+const R_STAND_SOUL_LINE = [ {c:'D', l:'My soul now to stand'} ];
+
+// Reusable lines for Holy Forever
+const R_HOLY_FOREVER_TAIL = [ {c:'G', l:'Holy forever'}, {c:'Gsus', l:''}, {c:'G', l:''} ];
+const R_HOLY_BE_HOLY_LINE = [ {c:'Am7', l:'You will always be ho -'}, {c:'D(add4)', l:'ly'} ];
+const R_HOLY_HALFCHORUS = [
+  [ {c:'C2', l:'And the angels cry: Ho'}, {c:'Em', l:'-'}, {c:'D(add4)', l:'ly'} ],
+  [ {c:'G/B', l:'All creation cries: Ho -'}, {c:'Em', l:'ly'} ],
+  [ {c:'Am7', l:'You are lifted high, ho -'}, {c:'D(add4)', l:'ly'} ],
+  R_HOLY_FOREVER_TAIL,
+];
+const R_HOLY_CHORUS_LINES = R_HOLY_HALFCHORUS.concat([
+  [ {c:'G/B', l:'Hear your people si'}, {c:'C2', l:'ng: Ho'}, {c:'Em', l:'-'}, {c:'D(add4)', l:'ly'} ],
+  [ {c:'G/B', l:'To the King of kings, ho -'}, {c:'Em', l:'ly'} ],
+  R_HOLY_BE_HOLY_LINE,
+  R_HOLY_FOREVER_TAIL,
+]);
+const R_HOLY_FOREVER_LAMB = [ {c:'Em', l:'Sing the song fore-'}, {c:'D(add4)', l:'ver to the La-'}, {c:'C2', l:'mb'} ];
+// Reusable lines for Gratitude
+const R_GRAT_THROW_LINE = [ {c:'C', l:'So I throw up my hands'} ];
+const R_GRAT_KNOW_LINE  = [ {c:'C', l:"And I know it's not much"} ];
+const R_GRAT_CHORUS_LINES = [
+  R_GRAT_THROW_LINE,
+  [ {c:'G', l:'And praise You again and again'} ],
+  [ {c:'F', l:"'Cause all that I have is a hallelujah,"}, {c:'Am', l:'hal - le -'}, {c:'G', l:'lujah'} ],
+  R_GRAT_KNOW_LINE,
+  [ {c:'G', l:"But I've nothing else fit for a king"} ],
+  [ {c:'F', l:'Except for a heart singing hallelujah'}, {c:'Am', l:'Hal - le - l'}, {c:'G', l:'u - j'}, {c:'C', l:'ah'} ],
+];
+const R_GRAT_SOUL = [ {c:'C', l:'Come on my soul'} ];
+const R_GRAT_SHY = [ {c:'C', l:"Oh don't you get shy on me"} ];
+const R_GRAT_LIFTUP_G = [ {c:'G', l:'Lift up your song'} ];
+const R_GRAT_LION_F = [ {c:'F', l:"Cause you've got a lion inside of those lungs"} ];
+const R_GRAT_PRAISE_C = [ {c:'C', l:'Get up and praise the Lord'} ];
+
+// Reusable lines for His Mercy Is More
+const R_MERCY_CHORUS_LINES = [
+  [ {c:'E', l:'Praise'}, {c:'E/G#', l:'the'}, {c:'A', l:'Lord'}, {c:'E', l:''}, {c:'C#m7', l:'His'}, {c:'B', l:'mercy is'}, {c:'A', l:'more'}, {c:'E', l:''}, {c:'B', l:''}, {c:'A', l:'Stronger than'}, {c:'E', l:'darkness'}, {c:'B', l:'New every'}, {c:'C#m7', l:'morn'} ],
+  [ {c:'A', l:'Our sins, they are'}, {c:'E', l:'many'} ],
+  [ {c:'B', l:'His mercy is more'} ],
+];
+const R_MERCY_HIS_MORE_LINE = [ {c:'B', l:'His mercy is'}, {c:'E', l:'more'} ];
+const R_MERCY_OURSINS_EB = [ {c:'E/G#', l:''}, {c:'A', l:'Our sins, they are'}, {c:'E/B', l:'many'} ];
+
+// Reusable lines for Be Thou My Vision
+const R_VISION_CHORUS_LINES = [
+  [ {c:'G', l:'O God,'}, {c:'Am', l:'be my'}, {c:'F', l:'everything,'}, {c:'G', l:'be my delight'} ],
+  [ {c:'G', l:'Be Jesus'}, {c:'Am', l:'my'}, {c:'F', l:'glory,'}, {c:'G', l:'my soul satisfied'} ],
+];
+
+const R_LOOKUP_JESUS_LINE  = [ {c:'D', l:'Jesus Lord'}, {c:'E', l:'of all,'}, {c:'D', l:'Jesus Lord'}, {c:'E', l:'of all'} ];
+const R_LOOKUP_JESUS_SHORT = [ {c:'D', l:'Jesus Lord'}, {c:'E', l:'of all'} ];
+const R_LOOKUP_LOOKUP_LINE = [ {c:'A', l:'I will look up for there is none above You'} ];
+const R_LOOKUP_BOWDOWN_LINE = [ {c:'F#m', l:'I will bow down to tell You that I need You'} ];
+const R_HOLY_PC1_LINES = [
+  [ {c:'C2', l:'Your name is the highest'}, {c:'Em', l:''} ],
+  [ {c:'D(add4)', l:'Your name is the greatest'} ],
+  [ {c:'Em', l:'Your name stands above them'}, {c:'C2', l:'all'} ],
+  [ {c:'C2', l:'All thrones and dominions'}, {c:'Em', l:''} ],
+  [ {c:'D(add4)', l:'All powers and positions'} ],
+  [ {c:'Em', l:'Your name stands above them'}, {c:'Am7', l:'all'} ],
+];
+
+const SONGS = [
+  {
+    id: 'ten-thousand-reasons',
+    title: '10,000 Reasons (Bless the Lord)',
+    artist: 'Matt Redman',
+    originalKey: 'G',
+    tempo: 73,
+    time: '4/4',
+    sections: [
+      { type:'intro', note:'Piano only', chordLine:['C','G','D/F#','Em','C','G','Dsus4','D'] },
+      { type:'chorus', lines: R_CHORUS },
+      { type:'verse', n:1, note:'Build on last line', lines:[
+        [ {c:'C', l:'The sun'}, {c:'G', l:'comes up'} ],
+        [ {c:'D', l:"It's a new"}, {c:'Em', l:'day dawning'} ],
+        [ {c:'C', l:"It's time to sing"}, {c:'G', l:'Your song'}, {c:'D', l:'again'}, {c:'Em', l:''} ],
+        [ {c:'C', l:'Whatever'}, {c:'G', l:'may pass'} ],
+        [ {c:'D/F#', l:'And whatever'}, {c:'Em', l:'lies before me'} ],
+        [ {c:'C', l:'Let me be'}, {c:'G', l:'singing'} ],
+        [ {c:'Dsus4', l:'When the eve-'}, {c:'D', l:'ning'}, {c:'G Gsus4 G', l:'comes'} ],
+      ]},
+      { type:'chorus', note:'Guitars and keys enter', lines: R_CHORUS },
+      { type:'verse', n:2, lines:[
+        [ {c:'C', l:"You're rich"}, {c:'G', l:'in love'} ],
+        [ {c:'D/F#', l:"And You're slow"}, {c:'Em', l:'to anger'} ],
+        [ {c:'C', l:'Your name'}, {c:'G', l:'is great'} ],
+        [ {c:'D/F#', l:'And Your heart'}, {c:'Em', l:'is kind'} ],
+        [ {c:'C', l:'For all'}, {c:'G', l:'Your goodness'} ],
+        [ {c:'D/F#', l:'I will keep'}, {c:'Em', l:'on singing'} ],
+        [ {c:'C', l:'Ten thousand'}, {c:'G', l:'reasons'} ],
+        [ {c:'Dsus4', l:'For my heart'}, {c:'D', l:'to'}, {c:'G Gsus4 G', l:'find'} ],
+      ]},
+      { type:'chorus', note:'Bass enters', lines: R_CHORUS },
+      { type:'instrumental', chordLine:['C','G','D','Em','C','G','Dsus4','D'], chordLine2:['C','Em','C','D','Em'] },
+      { type:'breakdown', chordLine:['C','D','G'] },
+      { type:'verse', n:3, note:'Build on last line', lines:[
+        [ {c:'C', l:'And on'}, {c:'G', l:'that day'} ],
+        [ {c:'D', l:'When my strength'}, {c:'Em', l:'is failing'} ],
+        [ {c:'C', l:'The end'}, {c:'G', l:'draws near'} ],
+        [ {c:'D', l:'And my time'}, {c:'Em', l:'has come'} ],
+        [ {c:'C', l:'Still'}, {c:'Em', l:'my soul will'} ],
+        [ {c:'D', l:'Sing Your praise'}, {c:'Em', l:'unending'} ],
+        [ {c:'C', l:'Ten'}, {c:'G', l:'thousand years'} ],
+        [ {c:'D', l:'And then forever'}, {c:'G', l:'more'} ],
+      ]},
+      { type:'chorus', note:'All in', lines: R_CHORUS },
+      { type:'chorus', lines: R_CHORUS },
+      { type:'tag', lines: R_TAG_FULL },
+      { type:'tag', lines: R_TAG_SHORT },
+      { type:'outro', chordLine:['C','G','D/F#','Em','C','G','Dsus4','D'] },
+      { type:'tag', lines: R_TAG_FULL },
+      { type:'tag', lines: R_TAG_SHORT },
+      { type:'tag', lines: R_TAG_FINAL },
+    ],
+  },
+  {
+    id: 'praise',
+    title: 'Praise',
+    artist: 'Elevation Worship & Maverick City',
+    originalKey: 'C',
+    tempo: 150,
+    time: '4/4',
+    sections: [
+      { type:'refrain', lines: R_PRAISE_REFRAIN },
+      { type:'verse', n:1, lines:[
+        [ {c:'C', l:"I'll praise in the valley"}, {c:'F2', l:'Praise on the'}, {c:'C', l:'mountain'} ],
+        [ {c:'G/B', l:"I'll praise when I'm sure"}, {c:'F2', l:"Praise when I'm"}, {c:'C', l:'doubting'} ],
+      ]},
+      { type:'verse', n:2, lines:[
+        [ {c:'C', l:"I'll praise when outnumbered"} ],
+        [ {c:'F2', l:'Praise when'}, {c:'C', l:'surrounded'} ],
+        [ {c:'G/B', l:'Cause praise is the waters'} ],
+        [ {c:'F', l:'My enemies'}, {c:'C', l:'drown in'} ],
+      ]},
+      { type:'prechorus', lines: R_PRAISE_PRECHORUS },
+      { type:'chorus', n:1, lines:[ R_PRAISE_CHORUS_LINE, R_PRAISE_CHORUS_LINE ] },
+      { type:'verse', n:3, lines:[
+        [ {c:'C', l:"I'll praise when I feel it"} ],
+        [ {c:'F2', l:"I'll praise when I"}, {c:'C', l:"don't"} ],
+        [ {c:'G/B', l:"I'll praise cause I kn-"}, {c:'F2', l:'ow'} ],
+        [ {c:'C', l:"You're still in control"} ],
+      ]},
+      { type:'verse', n:4, lines:[
+        [ {c:'C', l:'My praise is a weapon'} ],
+        [ {c:'F2', l:"It's more than a"}, {c:'C', l:'sound'} ],
+        [ {c:'G/B', l:'My praise is the shout'} ],
+        [ {c:'F2', l:'That brings Jericho'}, {c:'C', l:'down'} ],
+      ]},
+      { type:'prechorus', lines: R_PRAISE_PRECHORUS },
+      { type:'chorus', n:1, lines:[ R_PRAISE_CHORUS_LINE, R_PRAISE_CHORUS_LINE, R_PRAISE_QUIET_LINE, R_PRAISE_CHORUS_LINE ] },
+      { type:'interlude', chordLine:['C'] },
+      { type:'bridge', lines:[
+        [ {c:'C', l:"I'll praise cause You're sovereign"}, {c:'Dm', l:'Praise cause You reign'}, {c:'Em', l:'Praise cause You rose'} ],
+        [ {c:'F', l:'And defeated the grave'} ],
+        [ {c:'C', l:"I'll praise cause You're faithful"}, {c:'Dm', l:"Praise cause You're true"}, {c:'Em', l:"Praise cause there's nobody"}, {c:'F', l:'Greater than You'} ],
+      ]},
+      { type:'chorus', lines:[ R_PRAISE_CHORUS_LINE, R_PRAISE_CHORUS_LINE, R_PRAISE_CHORUS_LINE, R_PRAISE_CHORUS_LINE ] },
+      { type:'chorus', n:2, lines:[ R_PRAISE_QUIET_LINE, R_PRAISE_QUIET_LINE, R_PRAISE_QUIET_LINE, R_PRAISE_CHORUS_LINE ] },
+      { type:'outro', chordLine:['Am','F','C','G'], chordLine2:['Am','F','C','G'] },
+      { type:'refrain', note:'N.C. — a cappella', lines:[
+        [ {c:'N.C.', l:'Let everything'} ],
+        [ {c:'', l:'That has breath'} ],
+        [ {c:'', l:'Praise the Lord'} ],
+        [ {c:'', l:'Praise the Lord'} ],
+      ]},
+    ],
+  },
+  {
+    id: 'jireh',
+    title: 'Jireh',
+    artist: 'Elevation Worship & Maverick City',
+    originalKey: 'E',
+    tempo: 63,
+    time: '4/4',
+    sections: [
+      { type:'intro', chordLine:['C#m','E','A','E'] },
+      { type:'verse', n:1, lines:[
+        [ {c:'C#m', l:"I'll never be more loved"}, {c:'B', l:'than I am'}, {c:'A', l:'right'}, {c:'E', l:'now'} ],
+        [ {c:'C#m', l:"Wasn't holding You up so there's"}, {c:'B', l:'nothing I'}, {c:'A', l:'can do to let'}, {c:'E', l:'You down'} ],
+        [ {c:'B', l:"Doesn't take a"}, {c:'C#m', l:'trophy to make'}, {c:'A', l:'You'}, {c:'E', l:'proud'} ],
+        [ {c:'C#m', l:"I'll never be more loved"}, {c:'B', l:'than I'}, {c:'F#m', l:'am'}, {c:'E', l:'right now'} ],
+      ]},
+      { type:'verse', n:2, lines:[
+        [ {c:'C#m', l:'Going through a storm'}, {c:'E', l:'but I'}, {c:'A', l:"won't go"}, {c:'E', l:'down'} ],
+        [ {c:'C#m', l:'I hear Your voice carried'}, {c:'B', l:'in the rhythm of the'} ],
+        [ {c:'A', l:'wind to call'}, {c:'E', l:'me out'} ],
+        [ {c:'B', l:'You would cross'}, {c:'C#m', l:'an ocean so'}, {c:'A', l:"I wouldn't"} ],
+        [ {c:'E', l:'drown'} ],
+        [ {c:'C#m', l:"You've never been closer"}, {c:'B', l:'than You'}, {c:'F#m', l:'are right'} ],
+        [ {c:'E', l:'now'} ],
+      ]},
+      { type:'chorus', n:1, lines:[ R_JIREH_HOOK_E, R_JIREH_HOOK_E, R_JIREH_CONTENT_LINE, R_JIREH_HOOK_E ] },
+      { type:'instrumental', note:'Turnaround ×2', chordLine:['B','C#m','A','E'] },
+      { type:'verse', n:3, lines:[
+        [ {c:'C#m', l:"I don't wanna forget"}, {c:'B', l:'how I feel'}, {c:'A', l:'right'}, {c:'E', l:'now'} ],
+        [ {c:'C#m', l:'On the mountaintop I can'}, {c:'B', l:'see so clear what'} ],
+        [ {c:'A', l:"it's all"}, {c:'E/G#', l:'about'} ],
+        [ {c:'B', l:'Stay by'}, {c:'C#m', l:'my side when'}, {c:'A', l:'the sun'}, {c:'E/G#', l:'goes down'} ],
+        [ {c:'C#m', l:"Don't wanna forget"}, {c:'B', l:'how I'}, {c:'F#m', l:'feel'}, {c:'E', l:'right now'} ],
+      ]},
+      { type:'chorus', n:2, lines: R_JIREH_CHORUS2_LINES },
+      { type:'instrumental', note:'Turnaround ×2', chordLine:['B','C#m','A','E/G#'] },
+      { type:'bridge', note:'×3', lines:[
+        [ {c:'B', l:"I'm already"}, {c:'C#m', l:'loved'} ],
+        [ {c:'A', l:"I'm already"}, {c:'E/G#', l:'chosen'} ],
+        [ {c:'B', l:'I know who'}, {c:'C#m', l:'I am'} ],
+        [ {c:'A', l:"I know what You've"}, {c:'E/G#', l:'spoken'} ],
+        [ {c:'B', l:"I'm already"}, {c:'C#m', l:'loved'} ],
+        [ {c:'A', l:'More than I could'}, {c:'E/G#', l:'imagine'} ],
+        [ {c:'F#m', l:'And that is'}, {c:'E', l:'enough'} ],
+      ]},
+      { type:'tag', note:'×3', lines:[
+        [ {c:'F#m', l:'That is'}, {c:'E', l:'enough'} ],
+      ]},
+      { type:'vamp', n:1, lines:[
+        [ {c:'B', l:'That is'}, {c:'C#m', l:'enough'} ],
+        [ {c:'A', l:'That is'}, {c:'E/G#', l:'enough'} ],
+        [ {c:'B', l:'That is'}, {c:'C#m', l:'enough'} ],
+        [ {c:'A', l:'That is'}, {c:'E/G#', l:'enough'} ],
+        [ {c:'B', l:'That is'}, {c:'C#m', l:'enough'} ],
+        [ {c:'A', l:'That is'}, {c:'E/G#', l:'enough'} ],
+        [ {c:'B', l:'That is'}, {c:'C#m', l:'enough'} ],
+        [ {c:'A', l:'You are'}, {c:'E/G#', l:'enough'} ],
+        [ {c:'B', l:'You are'}, {c:'C#m', l:'enough'} ],
+        [ {c:'A', l:'You are'}, {c:'E/G#', l:'enough'} ],
+        [ {c:'B', l:'You are'}, {c:'C#m', l:'enough'} ],
+        [ {c:'A', l:'You are'}, {c:'E/G#', l:'enough'} ],
+        [ {c:'B', l:'So I am'}, {c:'C#m', l:'enough'} ],
+        [ {c:'A', l:'You are'}, {c:'E/G#', l:'enough'} ],
+        [ {c:'B', l:'So I am'}, {c:'C#m', l:'enough'} ],
+      ]},
+      { type:'chorus', n:2, note:'Repeat', lines: R_JIREH_CHORUS2_LINES },
+      { type:'instrumental', note:'×2', chordLine:['A','E/G#'] },
+      { type:'vamp', n:2, note:'×3', lines:[
+        [ {c:'A', l:'If He dresses'}, {c:'E/G#', l:'the lilies'}, {c:'A', l:'with beauty'}, {c:'E/G#', l:'and splendor'} ],
+        [ {c:'A', l:'How much more will'}, {c:'E/G#', l:'He clothe you'} ],
+        [ {c:'A', l:'How much more will'}, {c:'E/G#', l:'He clothe you'} ],
+        [ {c:'A', l:'If He'}, {c:'E/G#', l:'watches over'}, {c:'A', l:'every'}, {c:'E/G#', l:'sparrow'} ],
+        [ {c:'A', l:'How much more does'}, {c:'E/G#', l:'He love you'} ],
+        [ {c:'A', l:'How much more does'}, {c:'E/G#', l:'He love you'} ],
+      ]},
+      { type:'tag', note:'×5', lines:[
+        [ {c:'A', l:'How much more does'}, {c:'E/G#', l:'He love you'} ],
+      ]},
+      { type:'vamp', n:3, note:'×5', lines:[
+        [ {c:'B', l:'More than you'}, {c:'C#m', l:'ask, think or imagine'} ],
+        [ {c:'F#m', l:'According to'}, {c:'E', l:'His power'}, {c:'B', l:'working'}, {c:'C#m', l:'in us'} ],
+        [ {c:'A', l:"It's more"}, {c:'E/G#', l:'than enough'} ],
+      ]},
+      { type:'tag', note:'×2', lines:[
+        [ {c:'B', l:"It's more"}, {c:'C#m', l:'than enough'} ],
+        [ {c:'A', l:"It's more"}, {c:'E/G#', l:'than enough'} ],
+      ]},
+    ],
+  },
+  {
+    id: 'trust-in-god',
+    title: 'Trust in God',
+    artist: 'Elevation Worship',
+    originalKey: 'C',
+    tempo: 75,
+    time: '4/4',
+    sections: [
+      { type:'verse', n:1, lines:[
+        [ {c:'C', l:'Blessed assurance'} ],
+        [ {c:'Am', l:'Jesus is mine'} ],
+        [ {c:'F', l:"He's been my fourth man in the fire"} ],
+        [ {c:'C', l:'Time after'}, {c:'Dm', l:'time'} ],
+        [ {c:'C', l:"Born of His spirit"} ],
+        [ {c:'Am', l:'Washed in His blood'} ],
+        [ {c:'F', l:'And what He did for me on Calvary'} ],
+        [ {c:'C', l:'Is more than'}, {c:'Dm', l:'enough'} ],
+      ]},
+      { type:'chorus', lines:[
+        [ {c:'C', l:'I trust In God, my Savior'} ],
+        [ {c:'Am', l:'The One who will never'}, {c:'F', l:'fail'} ],
+        [ {c:'Dm', l:'He will never'}, {c:'F', l:'fail'} ],
+      ]},
+      { type:'verse', n:2, lines:[
+        [ {c:'C', l:'Perfect submission'} ],
+        [ {c:'Am', l:'All is at rest'} ],
+        [ {c:'F', l:'I know the Author of tomorrow'} ],
+        [ {c:'C', l:'Has ordered my'}, {c:'Dm', l:'steps'} ],
+        [ {c:'C', l:'So this is my story'} ],
+        [ {c:'Am', l:'And this is my song'} ],
+        [ {c:'F', l:'Praising my risen King and Savior'} ],
+        [ {c:'C', l:'All the'}, {c:'Dm', l:'day'}, {c:'F', l:'long'} ],
+      ]},
+      { type:'bridge', lines:[
+        [ {c:'C', l:'I sought the Lord and He heard and He answered'} ],
+        [ {c:'Am', l:'I sought the Lord and He heard and He answered'} ],
+        [ {c:'F', l:'I sought the Lord and He heard and He answered'} ],
+        [ {c:'Dm', l:"That's why I trust Him"} ],
+        [ {c:'F', l:"That's why I trust Him"} ],
+      ]},
+    ],
+  },
+  {
+    id: 'o-come-to-the-altar',
+    title: 'O Come to the Altar',
+    artist: 'Elevation Worship',
+    originalKey: 'A',
+    tempo: 70,
+    time: '4/4',
+    sections: [
+      { type:'verse', n:1, lines:[
+        [ {c:'A', l:'Are you'}, {c:'D', l:'hurting and broken'}, {c:'A', l:'within'} ],
+        [ {c:'D', l:'Overwhelmed by the weight of your'}, {c:'F#m', l:'sin'} ],
+        R_ALTAR_CALLING_LINE,
+        [ {c:'A', l:'Have you'}, {c:'D', l:'come to the end of'}, {c:'A', l:'yourself'} ],
+        [ {c:'D', l:'Do you thirst for a drink from the'}, {c:'F#m', l:'well'} ],
+        R_ALTAR_CALLING_LINE,
+      ]},
+      { type:'chorus', lines:[
+        [ {c:'A', l:'O come to'}, {c:'Bm', l:'the altar'} ],
+        [ {c:'F#m', l:"The Father's arms are"}, {c:'D', l:'open'}, {c:'A', l:'wide'} ],
+        [ {c:'A', l:'Forgiveness'}, {c:'Bm', l:'was bought with'} ],
+        [ {c:'F#m', l:'The precious blood of'}, {c:'D', l:'Jesus'}, {c:'A', l:'Christ'} ],
+      ]},
+      { type:'verse', n:2, lines:[
+        [ {c:'A', l:'Leave behind'}, {c:'D', l:'your regrets and'}, {c:'A', l:'mistakes'} ],
+        [ {c:'D', l:"Come today there's no reason to"}, {c:'F#m', l:'wait'} ],
+        R_ALTAR_CALLING_LINE,
+        [ {c:'A', l:'Bring your'}, {c:'D', l:'sorrows and trade them for'}, {c:'A', l:'joy'} ],
+        [ {c:'D', l:'From the ashes a new life is'}, {c:'F#m', l:'born'} ],
+        R_ALTAR_CALLING_LINE,
+      ]},
+      { type:'bridge', lines:[
+        [ {c:'A', l:'Oh what a Savior'} ],
+        [ {c:'F#m', l:"Isn't He wonderful"} ],
+        R_ALTAR_ALLELUIA_LINE,
+        [ {c:'A', l:'Bow down before Him'} ],
+        [ {c:'F#m', l:'For He is Lord of all'} ],
+        R_ALTAR_ALLELUIA_LINE,
+      ]},
+      { type:'verse', n:3, lines:[
+        [ {c:'A', l:'Bear your'}, {c:'D', l:'cross as you'}, {c:'Bm', l:'wait for the'}, {c:'A', l:'crown'} ],
+        [ {c:'G', l:'Tell the world'}, {c:'D', l:"of the treasure you've"}, {c:'A', l:'found'} ],
+      ]},
+    ],
+  },
+  {
+    id: 'great-are-you-lord',
+    title: 'Great Are You Lord',
+    artist: 'All Sons & Daughters',
+    originalKey: 'A',
+    tempo: 70,
+    time: '4/4',
+    sections: [
+      { type:'verse', n:1, lines:[
+        [ {c:'D', l:'You give life,'}, {c:'F#m', l:'You are love'} ],
+        [ {c:'E', l:'You bring light to the darkness'} ],
+        [ {c:'D', l:'You give hope,'}, {c:'F#m', l:'You restore'} ],
+        [ {c:'E', l:'Every heart that is'}, {c:'D', l:'broken'} ],
+      ]},
+      { type:'prechorus', lines:[
+        [ {c:'F#m', l:'Great are You,'}, {c:'E', l:'Lord'} ],
+      ]},
+      { type:'chorus', lines:[
+        [ {c:'D', l:"It's Your breath in our"}, {c:'F#m', l:'lungs'} ],
+        [ {c:'E', l:'So we pour out our praise, We pour out our praise'} ],
+        [ {c:'D', l:"It's Your breath in our"}, {c:'F#m', l:'lungs'} ],
+        [ {c:'E', l:'So we pour out our praise to You only'} ],
+      ]},
+      { type:'verse', n:2, lines:[
+        [ {c:'D', l:'You give life,'}, {c:'F#m', l:'You are love'} ],
+        [ {c:'E', l:'You bring light to the darkness'} ],
+        [ {c:'D', l:'You give hope,'}, {c:'F#m', l:'You restore'} ],
+        [ {c:'E', l:'Every heart that is broken'} ],
+      ]},
+      { type:'bridge', lines:[
+        [ {c:'A', l:'All the earth will shout Your praise'} ],
+        [ {c:'D/F#', l:'Our hearts will cry, these bones will sing'} ],
+        [ {c:'D', l:'Great are You,'}, {c:'A', l:'Lord'} ],
+      ]},
+    ],
+  },
+  {
+    id: 'waymaker',
+    title: 'Waymaker',
+    artist: 'Sinach / Leeland',
+    originalKey: 'E',
+    tempo: 70,
+    time: '4/4',
+    sections: [
+      { type:'intro', chordLine:['A','E','B','C#m'] },
+      { type:'verse', n:1, lines:[
+        [ {c:'A', l:'You are here,'}, {c:'E', l:'moving in our midst'} ],
+        R_WAYMAKER_WORSHIP,
+        [ {c:'A', l:'You are here,'}, {c:'E', l:'working in this place'} ],
+        R_WAYMAKER_WORSHIP,
+      ]},
+      { type:'chorus', lines:[
+        [ {c:'A', l:'(You are) Way Maker, Miracle Worker'} ],
+        [ {c:'E', l:'Promise Keeper'} ],
+        [ {c:'B', l:'Light in the darkness, my God'} ],
+        [ {c:'C#m', l:'That is who You are'} ],
+      ]},
+      { type:'verse', n:2, lines:[
+        [ {c:'A', l:'You are here,'}, {c:'E', l:'touching every heart'} ],
+        R_WAYMAKER_WORSHIP,
+        [ {c:'A', l:'You are here,'}, {c:'E', l:'healing every heart'} ],
+        R_WAYMAKER_WORSHIP,
+      ]},
+      { type:'verse', n:3, lines:[
+        [ {c:'A', l:'You are here,'}, {c:'E', l:'turning lives around'} ],
+        R_WAYMAKER_WORSHIP,
+        [ {c:'A', l:'You are here,'}, {c:'E', l:'mending every heart'} ],
+        R_WAYMAKER_WORSHIP,
+      ]},
+      { type:'tag', lines:[
+        [ {c:'A', l:'That is who You are'} ],
+        [ {c:'E', l:'That is who You are'} ],
+        [ {c:'B', l:'That is who You are'} ],
+        [ {c:'C#m', l:'That is who You are'} ],
+      ]},
+      { type:'bridge', lines:[
+        [ {c:'A', l:"Even when I don't see it, You're working"} ],
+        [ {c:'E', l:"Even when I don't feel it, You're working"} ],
+        [ {c:'B', l:'You never stop, You never stop working'} ],
+        [ {c:'C#m', l:'You never stop, You never stop working'} ],
+      ]},
+    ],
+  },
+  {
+    id: 'the-stand',
+    title: 'The Stand',
+    artist: 'Hillsong United',
+    originalKey: 'D',
+    tempo: 75,
+    time: '4/4',
+    sections: [
+      { type:'verse', n:1, lines:[
+        [ {c:'A', l:'You stood before creation'} ],
+        [ {c:'E', l:'E-'}, {c:'D', l:'ternity in Your hand'} ],
+        [ {c:'A/C#', l:'You spoke the earth into'}, {c:'F#m', l:'motion'} ],
+        R_STAND_SOUL_LINE,
+      ]},
+      { type:'verse', n:2, lines:[
+        [ {c:'A', l:'You stood before my failure'} ],
+        [ {c:'D', l:'And carried the cross for my shame'} ],
+        [ {c:'A/C#', l:'My sin weighed upon Your'}, {c:'F#m', l:'shoulders'} ],
+        R_STAND_SOUL_LINE,
+      ]},
+      { type:'prechorus', n:1, lines:[
+        [ {c:'D', l:'So what can I say'}, {c:'D/B', l:''} ],
+        [ {c:'F#m', l:'And what can I do'} ],
+        [ {c:'D', l:'But offer this heart O God'}, {c:'E', l:''} ],
+        [ {c:'F#m', l:'Completely to You'} ],
+      ]},
+      { type:'verse', n:3, lines:[
+        [ {c:'A', l:"So I'll walk upon salvation"} ],
+        [ {c:'D', l:'Your Spirit alive in me'} ],
+        [ {c:'A/C#', l:'My life to declare Your'}, {c:'F#m', l:'promise'} ],
+        R_STAND_SOUL_LINE,
+      ]},
+      { type:'prechorus', n:2, lines:[
+        [ {c:'D', l:'So what can I say'}, {c:'D/B', l:''} ],
+        [ {c:'F#m', l:'And what can I do'} ],
+        [ {c:'D', l:'But offer this heart O God'}, {c:'E', l:''} ],
+        [ {c:'D', l:'Completely to You'} ],
+      ]},
+      { type:'interlude', chordLine:['D','A','E','F#m'], chordLine2:['D','A','E','F#m'] },
+      { type:'chorus', lines:[
+        [ {c:'D', l:"So I'll"}, {c:'A', l:'stand'} ],
+        [ {c:'E', l:'With arms high and'}, {c:'F#m', l:'heart abandoned'} ],
+        [ {c:'D', l:'In'}, {c:'A', l:'awe of the'}, {c:'E', l:'One who'}, {c:'F#m', l:'gave it all'} ],
+        [ {c:'D', l:"I'll"}, {c:'A', l:'stand'} ],
+        [ {c:'E', l:'My soul Lord to'}, {c:'F#m', l:'You surrendered'} ],
+        [ {c:'D', l:'All I'}, {c:'A', l:'am is'}, {c:'E', l:'Yours'} ],
+      ]},
+    ],
+  },
+  {
+    id: 'holy-forever',
+    title: 'Holy Forever',
+    artist: 'Chris Tomlin',
+    originalKey: 'G',
+    tempo: 75,
+    time: '4/4',
+    sections: [
+      { type:'intro', chordLine:['C','Em','Dsus','G/B','Em','Dsus'] },
+      { type:'verse', n:1, lines:[
+        [ {c:'G', l:'A thousand generations'}, {c:'C', l:'Falling down in w-'}, {c:'G', l:'orship'} ],
+        [ {c:'Em', l:'To sing the song of a-'}, {c:'D(add4)', l:'ges to the La-'}, {c:'C2', l:'mb'} ],
+        [ {c:'G', l:"And all who've gone before us"} ],
+        [ {c:'C', l:'And all who will beli-'}, {c:'G', l:'eve'} ],
+        [ {c:'Em', l:'Will sing the song of a-'}, {c:'D(add4)', l:'ges to the La-'}, {c:'C2', l:'mb'} ],
+      ]},
+      { type:'prechorus', n:1, lines: R_HOLY_PC1_LINES },
+      { type:'halfchorus', lines: R_HOLY_HALFCHORUS },
+      { type:'verse', n:2, lines:[
+        [ {c:'G', l:"If you've been forgiven"} ],
+        [ {c:'C', l:"And if you've been redee-"}, {c:'G', l:'med'} ],
+        R_HOLY_FOREVER_LAMB,
+        [ {c:'G', l:'If you walk in freedom'} ],
+        [ {c:'C', l:'And if you bear His na-'}, {c:'G', l:'me'} ],
+        R_HOLY_FOREVER_LAMB,
+        [ {c:'Em', l:"We'll sing the song fore-"}, {c:'D(add4)', l:'ver and ame-'}, {c:'C2', l:'n'} ],
+      ]},
+      { type:'chorus', lines: R_HOLY_CHORUS_LINES },
+      { type:'prechorus', n:2, lines:[
+        [ {c:'C2', l:'Your name is the highest'}, {c:'Em', l:''} ],
+        [ {c:'D(add4)', l:'Your name is the greatest'} ],
+        [ {c:'Em', l:'Your name stands above them'}, {c:'C2', l:'all'} ],
+        [ {c:'C2', l:'All thrones and dominions'}, {c:'Em', l:''} ],
+        [ {c:'D(add4)', l:'All powers and positions'} ],
+        [ {c:'Em', l:'Your name stands above them'}, {c:'C2', l:'all'} ],
+      ]},
+      { type:'prechorus', n:1, note:'Repeat', lines: R_HOLY_PC1_LINES },
+      { type:'chorus', note:'Repeat', lines: R_HOLY_CHORUS_LINES },
+      { type:'tag', lines:[ R_HOLY_BE_HOLY_LINE, R_HOLY_FOREVER_TAIL ] },
+    ],
+  },
+  {
+    id: 'i-will-look-up',
+    title: 'I Will Look Up',
+    artist: 'Lauren Daigle',
+    originalKey: 'A',
+    tempo: 72,
+    time: '4/4',
+    sections: [
+      { type:'verse', n:1, lines:[
+        [ {c:'D', l:'All the'}, {c:'E', l:'worries of'}, {c:'F#m', l:'this'}, {c:'A', l:'world'} ],
+        [ {c:'D', l:'I will lay'}, {c:'E', l:'them at'}, {c:'F#m', l:'Your'}, {c:'A', l:'feet'} ],
+        [ {c:'D', l:'Surrender every'}, {c:'E', l:'anxious thought'} ],
+        [ {c:'F#m', l:'For'}, {c:'A', l:'perfect'}, {c:'D', l:'peace, Your'}, {c:'E', l:'perfect peace'} ],
+      ]},
+      { type:'verse', n:2, lines:[
+        [ {c:'D', l:'All the loved'}, {c:'E', l:'ones I'}, {c:'F#m', l:'hold'}, {c:'A', l:'dear'} ],
+        [ {c:'D', l:'All my hopes and'}, {c:'E', l:'dreams and'}, {c:'F#m', l:'all my'}, {c:'A', l:'fears'} ],
+        [ {c:'D', l:'I will choose to'}, {c:'E', l:'trust Your name'} ],
+        [ {c:'F#m', l:'In'}, {c:'A', l:'everything,'}, {c:'D', l:'with'}, {c:'E', l:'everything'} ],
+      ]},
+      { type:'chorus', n:1, lines:[
+        R_LOOKUP_LOOKUP_LINE,
+        R_LOOKUP_BOWDOWN_LINE,
+        R_LOOKUP_JESUS_LINE,
+      ]},
+      { type:'verse', n:3, lines:[
+        [ {c:'D', l:'I will take'}, {c:'E', l:'You at'}, {c:'F#m', l:'Your'}, {c:'A', l:'word'} ],
+        [ {c:'D', l:'For Jesus You have'}, {c:'E', l:'taken hold'}, {c:'F#m', l:'of'}, {c:'A', l:'me'} ],
+        [ {c:'D', l:'All my life is'}, {c:'E', l:'in Your hands'} ],
+        [ {c:'F#m', l:'You are'}, {c:'A', l:'my strength,'}, {c:'D', l:'You are'}, {c:'E', l:'my strength'} ],
+      ]},
+      { type:'chorus', n:2, lines:[
+        R_LOOKUP_LOOKUP_LINE,
+        R_LOOKUP_BOWDOWN_LINE,
+        R_LOOKUP_JESUS_SHORT,
+        [ {c:'A', l:'I will look back and see that You are faithful'} ],
+        [ {c:'F#m', l:'I look ahead believing You are able'} ],
+        R_LOOKUP_JESUS_LINE,
+      ]},
+      { type:'bridge', lines:[
+        [ {c:'D', l:'Prince of'}, {c:'E', l:'Peace,'}, {c:'F#m', l:'Perfect'}, {c:'A', l:'Healer'} ],
+        [ {c:'D', l:'All my'}, {c:'E', l:'life,'}, {c:'F#m', l:'all my'}, {c:'A', l:'cares'}, {c:'D', l:'on You'} ],
+        [ {c:'E', l:'King of'}, {c:'F#m', l:'Kings,'}, {c:'A', l:'Mighty Savior'} ],
+        [ {c:'D', l:'All my'}, {c:'E', l:'life, all'}, {c:'F#m', l:'my cares'}, {c:'A', l:'on You'} ],
+      ]},
+    ],
+  },
+  {
+    id: 'gratitude',
+    title: 'Gratitude',
+    artist: 'Brandon Lake',
+    originalKey: 'C',
+    tempo: 73,
+    time: '4/4',
+    sections: [
+      { type:'intro', chordLine:['C','C','Am','Am'], chordLine2:['G','G','F','F'] },
+      { type:'verse', n:1, lines:[
+        [ {c:'C', l:'All my words fall short'} ],
+        [ {c:'Am', l:'I got nothing new'} ],
+        [ {c:'G', l:'How could I express'} ],
+        [ {c:'F', l:'All my gratitude'} ],
+      ]},
+      { type:'verse', n:2, lines:[
+        [ {c:'C', l:'I could sing these songs'} ],
+        [ {c:'Am', l:'As I often do'} ],
+        [ {c:'G', l:'But every song must end'} ],
+        [ {c:'F', l:'And You never do'} ],
+      ]},
+      { type:'chorus', lines: R_GRAT_CHORUS_LINES },
+      { type:'verse', n:3, lines:[
+        [ {c:'C', l:"I've got one response"} ],
+        [ {c:'Am', l:"I've got just one move"} ],
+        [ {c:'G', l:'With my arms stretched wide'} ],
+        [ {c:'F', l:'I will worship You'} ],
+      ]},
+      { type:'chorus', note:'Repeat', lines: R_GRAT_CHORUS_LINES },
+      { type:'channel', n:1, chordLine:['C','C','C','C'], chordLine2:['C','C','C','C'] },
+      { type:'bridge', lines:[
+        [ {c:'C', l:'Come on my soul'} ],
+        [ {c:'C', l:"Oh don't you get shy on me"} ],
+        [ {c:'C', l:'Lift up your song'} ],
+        [ {c:'C', l:"'Cause you've got a lion inside of those lungs"} ],
+        [ {c:'C', l:'Get up and praise the Lord'} ],
+        R_GRAT_SOUL,
+        R_GRAT_SHY,
+        R_GRAT_LIFTUP_G,
+        R_GRAT_LION_F,
+        R_GRAT_PRAISE_C,
+        [ {c:'G', l:''}, {c:'C', l:''} ],
+        R_GRAT_SOUL,
+        R_GRAT_SHY,
+        R_GRAT_LIFTUP_G,
+        R_GRAT_LION_F,
+        [ {c:'Am', l:'Get up and praise the Lord'}, {c:'G', l:''} ],
+      ]},
+      { type:'channel', n:2, chordLine:['F','F','Am','G'], chordLine2:['F','F','F','F'] },
+      { type:'altchorus', lines:[
+        R_GRAT_THROW_LINE,
+        [ {c:'Gm', l:'And praise You again and again'} ],
+        [ {c:'F', l:"'Cause all that I have is a hallelujah,"}, {c:'Fm', l:'hallelujah'} ],
+        R_GRAT_KNOW_LINE,
+        [ {c:'Gm', l:"But I've nothing else fit for a king"} ],
+        [ {c:'F', l:'Except for a heart singing hallelujah'}, {c:'Fm', l:'Halleluj'}, {c:'C', l:'ah'} ],
+      ]},
+    ],
+  },
+  {
+    id: 'his-mercy-is-more',
+    title: 'His Mercy Is More',
+    artist: 'Matt Boswell & Matt Papa',
+    originalKey: 'E',
+    tempo: 72,
+    time: '4/4',
+    sections: [
+      { type:'chorus', n:1, lines: R_MERCY_CHORUS_LINES },
+      { type:'instrumental', note:'Turnaround', chordLine:['E','E','A','E','E','A'] },
+      { type:'verse', n:1, lines:[
+        [ {c:'E', l:'What love could re-'}, {c:'E/G#', l:'member no'}, {c:'A', l:'wrongs we have'}, {c:'E', l:'done'} ],
+        [ {c:'B', l:'Omniscient, all-'}, {c:'C#m7', l:'knowing, He'}, {c:'A', l:'counts not their'}, {c:'B', l:'sum'} ],
+        [ {c:'E', l:'Thrown into a'}, {c:'F#m7', l:'sea without'}, {c:'E/G#', l:'bottom or'}, {c:'A', l:'shore'} ],
+        R_MERCY_OURSINS_EB,
+        R_MERCY_HIS_MORE_LINE,
+      ]},
+      { type:'chorus', n:1, note:'Repeat', lines: R_MERCY_CHORUS_LINES },
+      { type:'instrumental', note:'Turnaround', chordLine:['E','E','A','E','E','A'] },
+      { type:'verse', n:2, lines:[
+        [ {c:'E', l:'What patience would'}, {c:'E/G#', l:'wait as we'}, {c:'A', l:'constantly'}, {c:'E', l:'roam'} ],
+        [ {c:'B', l:'What Father, so'}, {c:'C#m7', l:'tender, is'}, {c:'A', l:'calling us'}, {c:'B', l:'home'} ],
+        [ {c:'E', l:'He welcomes the'}, {c:'F#m7', l:'weakest, the'}, {c:'E/G#', l:'vilest, the'}, {c:'A', l:'poor'} ],
+        [ {c:'E/G#', l:''}, {c:'A', l:'Our sins, they are'}, {c:'E/G#', l:'many'} ],
+        R_MERCY_HIS_MORE_LINE,
+      ]},
+      { type:'chorus', n:1, note:'Repeat', lines: R_MERCY_CHORUS_LINES },
+      { type:'instrumental', note:'Turnaround', chordLine:['E','E','A','E','E','A'] },
+      { type:'instrumental', chordLine:['E','F#m7','E/G#','A','E/G#'], chordLine2:['A','E/G#','B'] },
+      { type:'verse', n:3, lines:[
+        [ {c:'E', l:'What riches of kindness He'}, {c:'A', l:'lavished on'}, {c:'E', l:'us'} ],
+        [ {c:'B/D#', l:'His blood was the'}, {c:'C#m7', l:'payment, His'}, {c:'A', l:'life was the'}, {c:'B', l:'cost'} ],
+        [ {c:'E', l:"We stood 'neath a"}, {c:'F#m7', l:'debt we could'}, {c:'E/G#', l:'never af-'}, {c:'A', l:'ford'} ],
+        R_MERCY_OURSINS_EB,
+        [ {c:'B', l:'His mercy is'}, {c:'E', l:'more'}, {c:'E', l:''} ],
+      ]},
+      { type:'chorus', n:1, note:'2nd time', lines: R_MERCY_CHORUS_LINES },
+      { type:'chorus', n:3, lines:[
+        [ {c:'E/G#', l:'Praise the'}, {c:'A', l:'Lord'}, {c:'N.C.', l:''} ],
+        [ {c:'B', l:'His mercy is more'}, {c:'A', l:'Stronger than'}, {c:'E', l:'darkness'}, {c:'G#7/', l:'New every'}, {c:'C#m7', l:'morn'} ],
+        [ {c:'A', l:'Our sins, they are'}, {c:'E', l:'many'} ],
+        [ {c:'B', l:'His mercy is'}, {c:'C#m7', l:'more'} ],
+        [ {c:'A', l:'Our sins, they are'}, {c:'E/B', l:'many'} ],
+        [ {c:'B', l:'His mercy is more'} ],
+      ]},
+      { type:'outro', chordLine:['E','E','A','E','E','A'], chordLine2:['E','E','A','E','E','A','E'] },
+    ],
+  },
+  {
+    id: 'be-thou-my-vision',
+    title: 'Be Thou My Vision',
+    artist: 'Dallan Forgaill / Ascend the Hill',
+    originalKey: 'C',
+    tempo: 70,
+    time: '3/4',
+    sections: [
+      { type:'intro', chordLine:['C','Am','F','C'] },
+      { type:'verse', n:1, lines:[
+        [ {c:'C', l:'Be Thou'}, {c:'Am', l:'my vision,'}, {c:'F', l:'O Lord of'}, {c:'C', l:'my heart'} ],
+        [ {c:'G', l:'Nought be all'}, {c:'Am', l:'else to me'} ],
+        [ {c:'F', l:'save that'}, {c:'G', l:'Thou art'} ],
+        [ {c:'Am', l:'Thou my'}, {c:'F', l:'best thought'} ],
+        [ {c:'C', l:'by day or'}, {c:'F', l:'by night'} ],
+        [ {c:'C', l:'Waking or'}, {c:'Am', l:'sleeping,'} ],
+        [ {c:'F', l:'Thy presence,'}, {c:'G', l:'my'}, {c:'C', l:'light'} ],
+      ]},
+      { type:'verse', n:2, lines:[
+        [ {c:'C', l:'Be Thou'}, {c:'Am', l:'my wisdom and'}, {c:'F', l:'Thou my true'}, {c:'C', l:'word'} ],
+        [ {c:'G', l:'I ever'}, {c:'Am', l:'with Thee and'}, {c:'F', l:'Thou with'}, {c:'G', l:'me, Lord'} ],
+        [ {c:'Am', l:'Thou my'}, {c:'F', l:'great Father,'}, {c:'C', l:'and I Thy'}, {c:'F', l:'true son'} ],
+        [ {c:'C', l:'Thou'}, {c:'Am', l:'in me'}, {c:'F', l:'dwelling, and'}, {c:'G', l:'I with Thee'}, {c:'C', l:'one'} ],
+      ]},
+      { type:'verse', n:3, lines:[
+        [ {c:'C', l:'Riches I'}, {c:'Am', l:'heed not,'} ],
+        [ {c:'F', l:"nor man's"}, {c:'C', l:'empty praise'} ],
+        [ {c:'G', l:'Thou mine'}, {c:'Am', l:'inheritance,'}, {c:'F', l:'now and'}, {c:'G', l:'always'} ],
+        [ {c:'Am', l:'Thou and'}, {c:'F', l:'Thou only,'}, {c:'C', l:'but first in'}, {c:'F', l:'my heart'} ],
+        [ {c:'C', l:'High'}, {c:'Am', l:'King of'}, {c:'F', l:'heaven,'}, {c:'G', l:'my treasure'}, {c:'C', l:'Thou art'} ],
+      ]},
+      { type:'chorus', note:'×2', lines: R_VISION_CHORUS_LINES },
+      { type:'verse', n:4, lines:[
+        [ {c:'C', l:'High King'}, {c:'Am', l:'of heaven,'}, {c:'F', l:'my'}, {c:'C', l:"vict'ry won"} ],
+        [ {c:'G', l:'May I reach'}, {c:'Am', l:"heaven's joys,"} ],
+        [ {c:'F', l:'O bright'}, {c:'G', l:"heaven's Sun!"} ],
+        [ {c:'Am', l:'Heart of'}, {c:'F', l:'my own'}, {c:'C', l:'heart, whatever'}, {c:'F', l:'befall,'} ],
+        [ {c:'C', l:'Still'}, {c:'Am', l:'be my'}, {c:'F', l:'vision,'}, {c:'G', l:'O Ruler'}, {c:'C', l:'of all'} ],
+        [ {c:'C', l:'Still'}, {c:'Am', l:'be my'}, {c:'F', l:'vision,'}, {c:'G', l:'O Ruler'}, {c:'C', l:'of all'} ],
+      ]},
+      { type:'chorus', note:'×3', lines: R_VISION_CHORUS_LINES },
+    ],
+  },
+  { id:'goodness-of-god', title:'Goodness of God', artist:'Bethel Music / CeCe Winans', pending:true },
+  { id:'raise-a-hallelujah', title:'Raise a Hallelujah', artist:'Bethel Music', pending:true },
+];
+
+/* ======================= MUSIC THEORY ======================= */
+
+const NOTE_INDEX = {C:0,'B#':0,'C#':1,Db:1,D:2,'D#':3,Eb:3,E:4,Fb:4,'E#':5,F:5,'F#':6,Gb:6,G:7,'G#':8,Ab:8,A:9,'A#':10,Bb:10,B:11,Cb:11};
+const SHARPS = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const FLATS  = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+const FLAT_KEYS = new Set(['F','Bb','Eb','Ab','Db','Gb']);
+const ALL_KEYS = ['C','Db','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
+
+function shiftNote(note, steps, useFlats){
+  const m = note.match(/^([A-Ga-g])(#|b)?/);
+  if(!m) return note;
+  const key = m[1].toUpperCase() + (m[2]||'');
+  const idx = NOTE_INDEX[key];
+  if(idx===undefined) return note;
+  const newIdx = ((idx+steps)%12+12)%12;
+  const scale = useFlats ? FLATS : SHARPS;
+  return scale[newIdx] + note.slice(m[0].length);
+}
+function transposeToken(token, steps, useFlats){
+  if(!token || steps===0) return token;
+  return token.split('/').map((part,i)=> shiftNote(part, steps, useFlats)).join('/');
+}
+function transposeLabel(label, steps, useFlats){
+  if(!label) return label;
+  return label.split(' ').map(tok=>transposeToken(tok, steps, useFlats)).join(' ');
+}
+function stepsBetween(fromKey, toKey){
+  return ((NOTE_INDEX[toKey]-NOTE_INDEX[fromKey])%12+12)%12;
+}
+
+/* ======================= RENDER ======================= */
+
+const state = { currentId: SONGS[0].id, keyBySong: {}, viewMode: 'full', removedBySong: {}, orderBySong: {} };
+let dragSourceIdx = null;
+
+function getOrder(song){
+  return state.orderBySong[song.id] || (state.orderBySong[song.id] = song.sections.map((_,i)=>i));
+}
+function reorderSection(song, sourceIdx, targetIdx, after){
+  const order = getOrder(song);
+  const from = order.indexOf(sourceIdx);
+  if(from===-1) return;
+  order.splice(from, 1);
+  let to = order.indexOf(targetIdx);
+  if(to===-1) to = order.length; else if(after) to += 1;
+  order.splice(to, 0, sourceIdx);
+  renderAll();
+}
+
+function removeSection(songId, idx){
+  const stack = state.removedBySong[songId] || (state.removedBySong[songId] = []);
+  if(!stack.includes(idx)) stack.push(idx);
+  renderAll();
+}
+function undoRemove(songId){
+  const stack = state.removedBySong[songId];
+  if(stack && stack.length){ stack.pop(); renderAll(); }
+}
+
+const TYPE_META = {
+  intro:        { label:'Intro',        abbr:'I',  color:'var(--sec-intro)' },
+  refrain:      { label:'Refrain',      abbr:'Rf', color:'var(--sec-intro)' },
+  verse:        { label:'Verse',        abbr:'V',  color:'var(--sec-verse)' },
+  chorus:       { label:'Chorus',       abbr:'C',  color:'var(--sec-chorus)' },
+  halfchorus:   { label:'Half-Chorus',  abbr:'Hc', color:'var(--sec-chorus)' },
+  altchorus:    { label:'Alt Chorus',   abbr:'Ac', color:'var(--sec-chorus)' },
+  prechorus:    { label:'Pre-Chorus',   abbr:'Pc', color:'var(--sec-verse)' },
+  bridge:       { label:'Bridge',       abbr:'B',  color:'var(--sec-bridge)' },
+  instrumental: { label:'Instrumental', abbr:'Is', color:'var(--sec-inst)' },
+  interlude:    { label:'Interlude',    abbr:'Il', color:'var(--sec-inst)' },
+  channel:      { label:'Channel',      abbr:'Ch', color:'var(--sec-inst)' },
+  breakdown:    { label:'Breakdown',    abbr:'Bd', color:'var(--sec-break)' },
+  tag:          { label:'Tag',          abbr:'Tg', color:'var(--sec-tag)' },
+  vamp:         { label:'Vamp',         abbr:'Vp', color:'var(--sec-tag)' },
+  outro:        { label:'Outro',        abbr:'O',  color:'var(--sec-outro)' },
+};
+
+function sectionMeta(section){
+  const meta = TYPE_META[section.type] || TYPE_META.verse;
+  const label = section.n ? `${meta.label} ${section.n}` : meta.label;
+  const abbr  = section.n ? `${meta.abbr}${section.n}` : meta.abbr;
+  return { label, abbr, color: meta.color };
+}
+
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+
+// Flags each section that has identical content (lyrics + chords, ignoring
+// production notes) to an earlier section, so minimal view can collapse it
+// to a one-line "repeat" reference instead of reprinting it.
+function computeRepeats(sections){
+  const seen = [];
+  return sections.map((sec, idx)=>{
+    const sig = JSON.stringify({
+      type: sec.type, n: sec.n || null,
+      lines: sec.lines || null,
+      chordLine: sec.chordLine || null,
+      chordLine2: sec.chordLine2 || null,
+    });
+    const match = seen.find(s => s.sig === sig);
+    if(match){
+      return { isRepeat:true, ofLabel: match.label };
+    }
+    seen.push({ sig, label: sectionMeta(sec).label });
+    return { isRepeat:false };
+  });
+}
+
+function renderSongList(){
+  const ul = document.getElementById('songList');
+  ul.innerHTML = SONGS.map((song, i) => {
+    const key = song.pending ? null : (state.keyBySong[song.id] || song.originalKey);
+    const active = song.id === state.currentId;
+    return `<li class="song-item ${active?'active':''} ${song.pending?'pending':''}" data-id="${song.id}">
+      <span class="song-num">${i+1}</span>
+      <span class="song-meta">
+        <div class="song-title">${esc(song.title)}</div>
+        <div class="song-artist">${esc(song.artist)}</div>
+      </span>
+      <span class="song-key-pill ${key?'':'empty'}">${key || '—'}</span>
+    </li>`;
+  }).join('');
+  ul.querySelectorAll('.song-item').forEach(el=>{
+    el.addEventListener('click', ()=>{ state.currentId = el.dataset.id; renderAll(); });
+  });
+}
+
+function renderChunk(chunk, steps, useFlats){
+  const chord = transposeLabel(chunk.c, steps, useFlats);
+  return `<span class="chunk"><span class="chord">${esc(chord)}</span><span class="lyric">${esc(chunk.l) || '&nbsp;'}</span></span>`;
+}
+
+function renderSection(section, idx, steps, useFlats, repeatInfo){
+  const meta = sectionMeta(section);
+  const anchorId = `sec-${idx}`;
+  const chordOnly = !section.lines && (section.chordLine || section.chordLine2) ? ' chord-only' : '';
+
+  const handle = `<span class="drag-handle" draggable="true" data-idx="${idx}" title="Drag to reorder">
+    <svg viewBox="0 0 10 16" fill="currentColor"><circle cx="2.5" cy="2" r="1.4"/><circle cx="7.5" cy="2" r="1.4"/><circle cx="2.5" cy="8" r="1.4"/><circle cx="7.5" cy="8" r="1.4"/><circle cx="2.5" cy="14" r="1.4"/><circle cx="7.5" cy="14" r="1.4"/></svg>
+  </span>`;
+
+  if(repeatInfo && repeatInfo.isRepeat){
+    return `<div class="section-card compact${chordOnly}" id="${anchorId}" data-idx="${idx}" style="--badge-color:${meta.color}">
+      <div class="section-card-head">
+        ${handle}
+        <span class="badge">${meta.abbr}</span>
+        <span class="section-label">${meta.label}</span>
+        <span class="repeat-tag">repeat &middot; same as ${esc(repeatInfo.ofLabel)}</span>
+        <span class="head-right">
+          ${section.note ? `<span class="section-note">${esc(section.note)}</span>` : ''}
+          <button class="section-close" data-idx="${idx}" title="Remove this section">&times;</button>
+        </span>
+      </div>
+    </div>`;
+  }
+
+  let body = '';
+  if(section.chordLine){
+    body += `<div class="chord-line">${section.chordLine.map(c=>`<span class="chord-pill">${esc(transposeLabel(c, steps, useFlats))}</span>`).join('')}</div>`;
+  }
+  if(section.chordLine2){
+    body += `<div class="chord-line" style="margin-top:8px;">${section.chordLine2.map(c=>`<span class="chord-pill">${esc(transposeLabel(c, steps, useFlats))}</span>`).join('')}</div>`;
+  }
+  if(section.lines){
+    body += section.lines.map(line=>`<div class="lyric-line">${line.map(ch=>renderChunk(ch, steps, useFlats)).join('')}</div>`).join('');
+  }
+  return `<div class="section-card${chordOnly}" id="${anchorId}" data-idx="${idx}" style="--badge-color:${meta.color}">
+    <div class="section-card-head">
+      ${handle}
+      <span class="badge">${meta.abbr}</span>
+      <span class="section-label">${meta.label}</span>
+      <span class="head-right">
+        ${section.note ? `<span class="section-note">${esc(section.note)}</span>` : ''}
+        <button class="section-close" data-idx="${idx}" title="Remove this section">&times;</button>
+      </span>
+    </div>
+    ${body}
+  </div>`;
+}
+
+function renderMain(){
+  const song = SONGS.find(s=>s.id===state.currentId);
+  const main = document.getElementById('main');
+
+  if(song.pending){
+    main.innerHTML = `
+      <div class="chart-header">
+        <div><h2>${esc(song.title)}</h2><p class="artist">${esc(song.artist)}</p></div>
+      </div>
+      <div class="empty-state">
+        <h3>Chart not added yet</h3>
+        <p>Send over the lyrics and chords for this one &mdash; chords placed above the words they land on works great, or a chord chart PDF is even easier to drop in accurately.</p>
+        <p>Once it's in, it'll get the same layout and key-changer as <code>10,000 Reasons</code>.</p>
+      </div>`;
+    return;
+  }
+
+  const originalKey = song.originalKey;
+  const currentKey = state.keyBySong[song.id] || originalKey;
+  const steps = stepsBetween(originalKey, currentKey);
+  const useFlats = FLAT_KEYS.has(currentKey);
+
+  const repeats = computeRepeats(song.sections);
+  const removedStack = state.removedBySong[song.id] || [];
+  const order = getOrder(song);
+  const visibleIdx = order.filter(i=>!removedStack.includes(i));
+  const keyOptions = ALL_KEYS.map(k=>`<option value="${k}" ${k===currentKey?'selected':''}>${k}</option>`).join('');
+  const nav = visibleIdx.map(idx=>{
+    const sec = song.sections[idx];
+    const meta = sectionMeta(sec);
+    const chordOnly = !sec.lines && (sec.chordLine || sec.chordLine2) ? ' chord-only' : '';
+    return `<span class="nav-pill${chordOnly}" style="--pill-color:${meta.color}" data-target="sec-${idx}">
+      <span class="nav-dot">${meta.abbr}</span>${meta.label}
+    </span>`;
+  }).join('');
+
+  main.innerHTML = `
+    <div class="chart-header">
+      <div>
+        <h2>${esc(song.title)}</h2>
+        <p class="artist">${esc(song.artist)}</p>
+      </div>
+      <div class="meta-row">
+        <span class="meta-tag">${song.tempo} BPM</span>
+        <span class="meta-tag">${song.time}</span>
+        <span class="meta-tag print-only">Key: ${currentKey}</span>
+        <div class="view-toggle">
+          <button class="toggle-btn ${state.viewMode==='full'?'active':''}" data-mode="full">Full</button>
+          <button class="toggle-btn ${state.viewMode==='minimal'?'active':''}" data-mode="minimal">Minimal</button>
+          <button class="toggle-btn ${state.viewMode==='lyrics'?'active':''}" data-mode="lyrics">Lyrics</button>
+        </div>
+        ${removedStack.length ? `<button class="pdf-btn" id="undoBtn" title="Bring back the last removed section">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 8h8a4 4 0 0 1 0 8H9"/><path d="M7 4.5 3.5 8 7 11.5"/></svg>
+          Undo remove
+        </button>` : ''}
+        <div class="key-control">
+          <label>Key</label>
+          <button class="step-btn" id="keyDown">&minus;</button>
+          <select id="keySelect">${keyOptions}</select>
+          <button class="step-btn" id="keyUp">&plus;</button>
+          ${currentKey!==originalKey ? `<button class="reset-link" id="keyReset">reset to ${originalKey}</button>` : ''}
+        </div>
+        <button class="pdf-btn" id="pdfBtn" title="Save just this chart as a PDF">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 2.5h7l3 3v12a.5.5 0 0 1-.5.5h-9.5a.5.5 0 0 1-.5-.5v-14a.5.5 0 0 1 .5-.5Z"/><path d="M12 2.5V6h3"/><path d="M7 14h6M7 11h6"/></svg>
+          Save as PDF
+        </button>
+        <button class="pdf-btn" id="presentBtn" title="Show lyric slides for projection">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="4" width="16" height="10.5" rx="1.2"/><path d="M7.5 17.5h5M10 14.5v3"/></svg>
+          Present
+        </button>
+      </div>
+    </div>
+    <div class="section-nav${state.viewMode==='lyrics' ? ' hide-chords' : ''}">${nav}</div>
+    <div class="chart-grid${state.viewMode==='lyrics' ? ' hide-chords' : ''}">
+      ${visibleIdx.map(idx=>renderSection(song.sections[idx], idx, steps, useFlats, state.viewMode==='minimal' ? repeats[idx] : null)).join('')}
+    </div>
+  `;
+
+  main.querySelectorAll('.toggle-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ state.viewMode = btn.dataset.mode; renderAll(); });
+  });
+  main.querySelectorAll('.section-close').forEach(btn=>{
+    btn.addEventListener('click', ()=> removeSection(song.id, parseInt(btn.dataset.idx, 10)));
+  });
+
+  main.querySelectorAll('.drag-handle').forEach(handle=>{
+    handle.addEventListener('dragstart', e=>{
+      dragSourceIdx = parseInt(handle.dataset.idx, 10);
+      const card = handle.closest('.section-card');
+      card.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setDragImage(card, 20, 20);
+      try{ e.dataTransfer.setData('text/plain', String(dragSourceIdx)); }catch(err){}
+    });
+    handle.addEventListener('dragend', ()=>{
+      main.querySelectorAll('.section-card').forEach(c=>c.classList.remove('dragging','drag-over-top','drag-over-bottom'));
+      dragSourceIdx = null;
+    });
+  });
+  main.querySelectorAll('.section-card').forEach(card=>{
+    card.addEventListener('dragover', e=>{
+      if(dragSourceIdx===null) return;
+      e.preventDefault();
+      const targetIdx = parseInt(card.dataset.idx, 10);
+      if(targetIdx===dragSourceIdx) return;
+      const rect = card.getBoundingClientRect();
+      const after = (e.clientY - rect.top) > rect.height/2;
+      card.classList.toggle('drag-over-top', !after);
+      card.classList.toggle('drag-over-bottom', after);
+    });
+    card.addEventListener('dragleave', ()=>{
+      card.classList.remove('drag-over-top','drag-over-bottom');
+    });
+    card.addEventListener('drop', e=>{
+      e.preventDefault();
+      const targetIdx = parseInt(card.dataset.idx, 10);
+      const after = card.classList.contains('drag-over-bottom');
+      card.classList.remove('drag-over-top','drag-over-bottom');
+      if(dragSourceIdx===null || targetIdx===dragSourceIdx) return;
+      reorderSection(song, dragSourceIdx, targetIdx, after);
+    });
+  });
+  const undoBtn = document.getElementById('undoBtn');
+  if(undoBtn) undoBtn.addEventListener('click', ()=> undoRemove(song.id));
+  document.getElementById('pdfBtn').addEventListener('click', ()=>{
+    const originalTitle = document.title;
+    document.title = `${song.title} (${currentKey})`;
+    const restore = ()=>{ document.title = originalTitle; window.removeEventListener('afterprint', restore); };
+    window.addEventListener('afterprint', restore);
+    window.print();
+    setTimeout(restore, 3000); // fallback for browsers that skip afterprint on "Save as PDF"
+  });
+  document.getElementById('presentBtn').addEventListener('click', ()=> openSlides(song));
+  document.getElementById('keySelect').addEventListener('change', e=>{
+    state.keyBySong[song.id] = e.target.value; renderAll();
+  });
+  document.getElementById('keyUp').addEventListener('click', ()=>{
+    const i = ALL_KEYS.indexOf(currentKey);
+    state.keyBySong[song.id] = ALL_KEYS[(i+1)%ALL_KEYS.length]; renderAll();
+  });
+  document.getElementById('keyDown').addEventListener('click', ()=>{
+    const i = ALL_KEYS.indexOf(currentKey);
+    state.keyBySong[song.id] = ALL_KEYS[(i-1+ALL_KEYS.length)%ALL_KEYS.length]; renderAll();
+  });
+  const resetBtn = document.getElementById('keyReset');
+  if(resetBtn) resetBtn.addEventListener('click', ()=>{
+    delete state.keyBySong[song.id]; renderAll();
+  });
+  main.querySelectorAll('.nav-pill').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      document.getElementById(el.dataset.target).scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  });
+}
+
+function renderAll(){
+  renderSongList();
+  renderMain();
+}
+
+/* ======================= PROJECTION SLIDES ======================= */
+
+const MAX_LINES_PER_SLIDE = 4;
+const slideState = { slides: [], index: 0 };
+
+// Joins a line's chunks into plain lyric text for projection (no chords).
+// A chunk ending in a bare hyphen (e.g. "eve-") is a mid-word split and
+// gets glued to the next chunk with no space; "hal - le -" style spelled
+// syllables (hyphen preceded by a space) join normally with a space.
+function joinLineText(line){
+  let out = '';
+  for(const ch of line){
+    const t = ch.l || '';
+    if(!t) continue;
+    if(/[^\s]-$/.test(out)){
+      out = out.slice(0, -1) + t;
+    } else if(out){
+      out += ' ' + t;
+    } else {
+      out = t;
+    }
+  }
+  return out;
+}
+
+// Builds the slide deck for a song from its current visible arrangement
+// (custom order + removed sections applied), ignoring Minimal/Lyrics view
+// settings — a live projection needs every repeat shown, chords stripped.
+function buildSlides(song){
+  const removedStack = state.removedBySong[song.id] || [];
+  const order = getOrder(song);
+  const visible = order.filter(i => !removedStack.includes(i));
+  const slides = [];
+  visible.forEach(idx=>{
+    const sec = song.sections[idx];
+    if(!sec.lines) return;
+    const label = sectionMeta(sec).label;
+    const textLines = sec.lines.map(joinLineText).filter(Boolean);
+    for(let i=0; i<textLines.length; i += MAX_LINES_PER_SLIDE){
+      slides.push({ label, lines: textLines.slice(i, i + MAX_LINES_PER_SLIDE) });
+    }
+  });
+  return slides;
+}
+
+function renderSlide(){
+  const { slides, index } = slideState;
+  const labelEl = document.getElementById('slideLabel');
+  const textEl = document.getElementById('slideText');
+  const counterEl = document.getElementById('slideCounter');
+  if(!slides.length){
+    labelEl.textContent = '';
+    textEl.textContent = "No lyrics to project for this song yet.";
+    counterEl.textContent = '';
+    return;
+  }
+  const s = slides[index];
+  labelEl.textContent = s.label;
+  textEl.innerHTML = s.lines.map(esc).join('<br>');
+  counterEl.textContent = `${index + 1} / ${slides.length}`;
+}
+
+function slideNext(){ if(slideState.index < slideState.slides.length - 1){ slideState.index++; renderSlide(); } }
+function slidePrev(){ if(slideState.index > 0){ slideState.index--; renderSlide(); } }
+
+function onSlideKeydown(e){
+  if(e.key==='ArrowRight' || e.key==='ArrowDown' || e.key===' '){ e.preventDefault(); slideNext(); }
+  else if(e.key==='ArrowLeft' || e.key==='ArrowUp'){ e.preventDefault(); slidePrev(); }
+  else if(e.key==='Escape'){ closeSlides(); }
+}
+
+function openSlides(song){
+  slideState.slides = buildSlides(song);
+  slideState.index = 0;
+  renderSlide();
+  document.getElementById('slidesOverlay').hidden = false;
+  document.addEventListener('keydown', onSlideKeydown);
+}
+function closeSlides(){
+  document.getElementById('slidesOverlay').hidden = true;
+  document.removeEventListener('keydown', onSlideKeydown);
+}
+
+(function initSlidesOverlay(){
+  const overlay = document.getElementById('slidesOverlay');
+  document.getElementById('slideNext').addEventListener('click', slideNext);
+  document.getElementById('slidePrev').addEventListener('click', slidePrev);
+  document.getElementById('slideClose').addEventListener('click', closeSlides);
+  let touchStartX = null, touchStartY = null;
+  overlay.addEventListener('touchstart', e=>{
+    const t = e.changedTouches[0];
+    touchStartX = t.clientX; touchStartY = t.clientY;
+  }, {passive:true});
+  overlay.addEventListener('touchend', e=>{
+    if(touchStartX===null) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchStartX;
+    const dy = t.clientY - touchStartY;
+    touchStartX = null;
+    if(Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5){
+      if(dx < 0) slideNext(); else slidePrev();
+    }
+  }, {passive:true});
+})();
+
+renderAll();
+</script>
