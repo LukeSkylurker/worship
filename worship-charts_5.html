@@ -99,10 +99,43 @@
   .brand h1{font-size:1.5rem; font-weight:600; margin:.2em 0 0; color:var(--ink); line-height:1.15;}
   .brand p{margin:.35em 0 0; font-size:.82rem; color:var(--ink-dim);}
 
-  .song-list{list-style:none; margin:18px 0 0; padding:0; display:flex; flex-direction:column; gap:3px;}
+  .song-section-head{
+    display:flex; align-items:center; justify-content:flex-start; gap:10px;
+    margin:20px 0 8px; padding:0 2px;
+  }
+  .song-section:first-child .song-section-head{margin-top:2px;}
+  .song-section-title{
+    font-family:'IBM Plex Mono', monospace; font-size:.7rem; font-weight:700;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint);
+  }
+  .share-btn{
+    font-family:'IBM Plex Mono', monospace; font-size:.68rem; font-weight:600;
+    padding:4px 10px; border-radius:7px; border:1px solid var(--border);
+    background:var(--surface); color:var(--ink-dim); cursor:pointer;
+  }
+  .share-btn:hover{border-color:var(--accent); color:var(--accent-strong);}
+  .share-btn.copied{border-color:var(--accent); color:var(--accent-strong); background:var(--surface-2);}
+  .reveal-all-btn{
+    width:100%; font-family:'IBM Plex Mono', monospace; font-size:.76rem; font-weight:600;
+    padding:9px 10px; border-radius:10px; border:1px dashed var(--border);
+    background:transparent; color:var(--ink-dim); cursor:pointer; text-align:center;
+  }
+  .reveal-all-btn:hover{border-color:var(--accent); color:var(--accent-strong); border-style:solid;}
+  .hide-all-btn{
+    font-family:'IBM Plex Mono', monospace; font-size:.68rem; font-weight:600;
+    padding:4px 10px; border-radius:7px; border:1px solid var(--border);
+    background:var(--surface); color:var(--ink-dim); cursor:pointer;
+  }
+  .hide-all-btn:hover{border-color:var(--accent); color:var(--accent-strong);}
+  .set-empty{
+    font-size:.78rem; color:var(--ink-faint); line-height:1.5; margin:0; padding:0 2px 4px;
+  }
+
+  .song-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:3px;}
   .song-item{
+    position:relative;
     display:flex; align-items:center; gap:10px;
-    padding:9px 10px; border-radius:10px; cursor:pointer;
+    padding:9px 34px 9px 10px; border-radius:10px; cursor:pointer;
     border:1px solid transparent;
   }
   .song-item:hover{background:var(--surface);}
@@ -122,6 +155,23 @@
   }
   .song-item.pending .song-title{color:var(--ink-faint); font-weight:500;}
   .song-key-pill.empty{color:var(--ink-faint); border-style:dashed;}
+
+  .set-add-btn, .set-remove-btn{
+    position:absolute; top:8px; right:8px;
+    width:22px; height:22px; border-radius:6px; flex-shrink:0;
+    font-size:.8rem; line-height:1; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .set-add-btn{
+    border:1px solid var(--border); background:var(--surface-2); color:var(--ink-dim);
+  }
+  .set-add-btn:hover{border-color:var(--accent); color:var(--accent-strong);}
+  .set-add-btn.added{background:var(--accent); border-color:var(--accent); color:#fff; cursor:default;}
+  .set-remove-btn{
+    border:1px solid transparent; background:transparent; color:var(--ink-faint);
+  }
+  .set-remove-btn:hover{background:var(--surface-2); border-color:var(--border); color:#B23B3B;}
+  .set-item .drag-handle{margin-right:-2px;}
 
   /* ---------- Main ---------- */
   .main{flex:1; min-width:0; padding:34px 44px 80px; overflow-y:auto;}
@@ -362,6 +412,41 @@
   .present-bar-close{color:var(--ink-faint) !important;}
   .present-bar-counter{white-space:nowrap; min-width:3.2em; text-align:center;}
 
+  .confirm-modal{
+    position:fixed; inset:0; z-index:1200; background:rgba(20,18,12,.45);
+    display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  .confirm-modal[hidden]{display:none;}
+  .confirm-modal-box{
+    background:var(--surface); border-radius:16px; border:1px solid var(--border);
+    box-shadow:var(--shadow); padding:24px 26px; max-width:380px; width:100%;
+  }
+  .confirm-modal-box h3{margin:0 0 10px; font-family:'Fraunces', serif; font-size:1.15rem; color:var(--ink);}
+  .confirm-modal-box p{margin:0 0 20px; font-size:.88rem; line-height:1.55; color:var(--ink-dim);}
+  .confirm-modal-actions{display:flex; flex-wrap:wrap; gap:10px; justify-content:flex-end;}
+  .confirm-modal-btn{
+    font-family:'IBM Plex Mono', monospace; font-size:.78rem; font-weight:600;
+    padding:9px 14px; border-radius:9px; cursor:pointer; border:1px solid var(--border);
+  }
+  .confirm-modal-btn.secondary{background:var(--surface); color:var(--ink-dim);}
+  .confirm-modal-btn.secondary:hover{border-color:var(--ink-dim); color:var(--ink);}
+  .confirm-modal-btn.primary{background:var(--accent); color:#fff; border-color:var(--accent);}
+  .confirm-modal-btn.primary:hover{background:var(--accent-strong); border-color:var(--accent-strong);}
+
+  .set-song-divider{
+    display:flex; flex-direction:column; align-items:center; text-align:center; gap:3px;
+    margin:28px 0 16px; padding:14px 10px;
+    border-top:1px dashed var(--border); border-bottom:1px dashed var(--border);
+    break-inside:avoid;
+  }
+  .set-song-divider.first{margin-top:0;}
+  .set-song-divider-label{
+    font-family:'IBM Plex Mono', monospace; font-size:.68rem; font-weight:700;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--accent-strong);
+  }
+  .set-song-divider-title{font-family:'Fraunces', serif; font-weight:600; font-size:1.15rem; color:var(--ink);}
+  .set-song-divider-artist{font-size:.8rem; color:var(--ink-faint);}
+
   /* ---------- Chart focus mode (present + follow-along on the chart itself) ---------- */
   .app.focus-active .sidebar{display:none;}
   .app.focus-active .main{max-width:900px; margin:0 auto; width:100%;}
@@ -399,11 +484,12 @@
   .focus-mode-grid.chart-grid .chord-line{gap:11px;}
   .focus-mode-grid.chart-grid .lyric-line{row-gap:11px; margin-bottom:18px;}
   .focus-mode-grid .section-card{
-    opacity:.7; transform:scale(.99);
+    opacity:.7; transform:scale(.99); cursor:pointer;
     transition:opacity .25s ease, transform .25s ease, box-shadow .25s ease;
   }
+  .focus-mode-grid .section-card:hover:not(.focused){opacity:.9;}
   .focus-mode-grid .section-card.focused{
-    opacity:1; transform:scale(1);
+    opacity:1; transform:scale(1); cursor:default;
     box-shadow:0 0 0 2px var(--accent), var(--shadow);
   }
   .focus-mode-grid .drag-handle, .focus-mode-grid .section-close{display:none;}
@@ -430,8 +516,13 @@
     padding:8vh 9vw; text-align:center; user-select:none; touch-action:none;
   }
   .slides-overlay[hidden]{display:none;}
-  .slide-label{
+  .slide-song{
     position:absolute; top:26px; left:32px;
+    font-family:'IBM Plex Mono', monospace; font-size:.92rem; letter-spacing:.05em;
+    text-transform:uppercase; color:rgba(245,243,236,.62);
+  }
+  .slide-label{
+    position:absolute; top:54px; left:32px;
     font-family:'IBM Plex Mono', monospace; font-size:.78rem; letter-spacing:.06em;
     text-transform:uppercase; color:rgba(245,243,236,.4);
   }
@@ -480,12 +571,13 @@
         <button type="button" class="layout-btn" data-layout="2col">2 col</button>
       </div>
     </div>
-    <ul class="song-list" id="songList"></ul>
+    <div id="songListWrap"></div>
   </nav>
   <main class="main" id="main"></main>
 </div>
 
 <div class="slides-overlay" id="slidesOverlay" hidden>
+  <div class="slide-song" id="slideSong"></div>
   <div class="slide-label" id="slideLabel"></div>
   <div class="slide-text" id="slideText"></div>
   <div class="slide-counter" id="slideCounter"></div>
@@ -501,6 +593,17 @@
   <span class="present-bar-counter" id="presentBarCounter">1 / 1</span>
   <button id="presentBarNext" aria-label="Next slide">&rsaquo;</button>
   <button class="present-bar-close" id="presentBarClose" aria-label="Close presentation window">&times;</button>
+</div>
+
+<div class="confirm-modal" id="setPresentModal" hidden>
+  <div class="confirm-modal-box">
+    <h3>Present the whole set?</h3>
+    <p id="setPresentModalText"></p>
+    <div class="confirm-modal-actions">
+      <button class="confirm-modal-btn secondary" id="setPresentJustSong">Just This Song</button>
+      <button class="confirm-modal-btn primary" id="setPresentWholeSet">Present Whole Set</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -633,9 +736,116 @@ const R_HOLY_PC1_LINES = [
   [ {c:'Em', l:'Your name stands above them'}, {c:'Am7', l:'all'} ],
 ];
 
+// Reusable lines for Promises
+const R_PROMISES_PRECHORUS_LINES = [
+  [ {c:'Em', l:'Though the storms may come and the'}, {c:'C', l:'winds may blow'} ],
+  [ {c:'G', l:"I'll remain stead-"}, {c:'D', l:'fast'} ],
+  [ {c:'Em', l:'And let my heart learn when'}, {c:'C', l:'You speak a word it will'}, {c:'G', l:'come to'}, {c:'D', l:'pass'} ],
+];
+const R_PROMISES_CHORUS_LINES = [
+  [ {c:'Em', l:'Great is Your'}, {c:'D/B', l:'faithful-'}, {c:'C', l:'ness to'}, {c:'G', l:'me'} ],
+  [ {c:'Em', l:'Great is Your'}, {c:'D/B', l:'faithful-'}, {c:'C', l:'ness to'}, {c:'G', l:'me'} ],
+  [ {c:'Em', l:'From the rising sun, to the'}, {c:'D', l:'setting same'} ],
+  [ {c:'C', l:'I will praise Your'}, {c:'G', l:'name'} ],
+  [ {c:'Em', l:'Great is Your'}, {c:'D', l:'faithful-'}, {c:'C', l:'ness to'}, {c:'G', l:'me'} ],
+];
+
+// Reusable lines for Oceans (Where Feet May Fail)
+const R_OCEANS_CHORUS_LINES = [
+  [ {c:'C', l:'I will'}, {c:'G', l:'call upon Your'}, {c:'D', l:'Name'} ],
+  [ {c:'C', l:'And keep my'}, {c:'G', l:'eyes above th-'}, {c:'D', l:'e waves'} ],
+  [ {c:'C', l:'When oceans rise'} ],
+  [ {c:'G', l:'My soul will rest in Your e-'}, {c:'D', l:'mbrace'} ],
+  [ {c:'C', l:'For I am Yours and'}, {c:'D', l:'You are'}, {c:'Em', l:'mine'} ],
+];
+
+// Reusable chords for In Christ Alone -- the "REPEAT INTRO" turnaround
+// recurs between every verse/bridge, always identical, so one shared
+// reference lets computeRepeats collapse every later occurrence.
+const R_ICA_INTRO_CHORDS = ['E','A','C#m','A'];
+
+// Reusable line for O Praise the Name -- the closing chorus tagline is
+// repeated verbatim (twice) as the whole Bridge.
+const R_OPRAISE_TAGLINE = [ {c:'F', l:'Oh'}, {c:'G', l:'Lord, oh'}, {c:'C', l:'Lord our God'} ];
+
+// Reusable lines for Build My Life -- Verse 1/2 and Chorus 2 each get
+// literally repeated later ("REPEAT VERSE 1, VERSE 2" / "REPEAT CHORUS 2"),
+// and Bridge 1/2/3 share their first two lines.
+const R_BML_VERSE1_LINES = [
+  [ {c:'G', l:'Worthy of every so-'}, {c:'C/G', l:'ng we could ever sing'} ],
+  [ {c:'G/B', l:'Worthy of all the pr-'}, {c:'C/G', l:'aise we could ever bring'} ],
+  [ {c:'G', l:'Worthy of every br-'}, {c:'C/G', l:'eath we could ever breathe'} ],
+  [ {c:'G/B', l:'We live for You'}, {c:'C/G', l:''} ],
+];
+const R_BML_VERSE2_LINES = [
+  [ {c:'G', l:'Jesus, the Name abo-'}, {c:'C/G', l:'ve every other name'} ],
+  [ {c:'G/B', l:'Jesus, the only On-'}, {c:'C/G', l:'e who could ever save'} ],
+  [ {c:'G', l:'Worthy of every br-'}, {c:'C/G', l:'eath we could ever breathe'} ],
+  [ {c:'G/B', l:'We live for You Oh, we live for Yo-'}, {c:'C/G', l:'u'} ],
+];
+const R_BML_CHORUS2_LINES = [
+  [ {c:'Cmaj9', l:'Holy, there is no one'}, {c:'Am7', l:'like You'} ],
+  [ {c:'G', l:'There is none beside You'} ],
+  [ {c:'Em7', l:'Open up my eyes in wonder'} ],
+  [ {c:'Cmaj9', l:'Show me who You are and'}, {c:'Am7', l:'fill me'} ],
+  [ {c:'G', l:'With Your heart and lead me'} ],
+  [ {c:'Em7', l:'In Your love to those around me'} ],
+];
+const R_BML_BRIDGE1_LINES = [
+  [ {c:'Cmaj9', l:'I will build my'}, {c:'Dsus', l:'life upon Your'}, {c:'Em7', l:'love'} ],
+  [ {c:'G/B', l:'It is a firm foundation'}, {c:'Cmaj9', l:'I will put my'}, {c:'Dsus', l:'trust in You a-'}, {c:'Em7', l:'lone'} ],
+  [ {c:'G/B', l:'And I will not be shaken'} ],
+];
+
+// Reusable lines for Rest On Us -- both verses close on the identical
+// "Come rest on us" couplet.
+const R_ROU_TAIL_1 = [ {c:'Em', l:'Come rest on us'} ];
+const R_ROU_TAIL_2 = [ {c:'C', l:'Come rest on us'} ];
+
+// Reusable lines for Come Thou Fount -- the "Prone to wander" quatrain
+// closes both Verse 3 and the Outro (Outro repeats its last couplet an
+// extra time too), and the chorus lines recur across Chorus, "REPEAT
+// CHORUS", and the 3x-repeated Chorus 2 with small chord variations.
+const R_CTF_PRONE_1 = [ {c:'Bm', l:'Prone to wander,'}, {c:'G', l:'Lord I'}, {c:'D', l:'feel it'} ];
+const R_CTF_PRONE_2 = [ {c:'Bm', l:'Prone to leave the'}, {c:'G', l:'God I'}, {c:'D', l:'love'} ];
+const R_CTF_SEALIT_1 = [ {c:'D', l:"Here's my heart Lord, take and"}, {c:'A', l:'seal it'} ];
+const R_CTF_SEALIT_2 = [ {c:'G', l:'Seal it for Thy courts a-'}, {c:'D', l:'bove'} ];
+const R_CTF_CHORUS_LINES = [
+  [ {c:'G', l:'How Your kindness yet pur-'}, {c:'D', l:'sues me'} ],
+  [ {c:'G', l:'How Your mercy never'}, {c:'D', l:'fails me'} ],
+  [ {c:'G', l:'Till the day that death shall'}, {c:'Bm', l:'loose me'} ],
+  [ {c:'G', l:'I will sing, oh'}, {c:'A', l:'I will'}, {c:'Bm', l:'sing'}, {c:'G', l:''}, {c:'D', l:''} ],
+];
+const R_CTF_PURSUES = [ {c:'G', l:'How Your kindness yet pur-'}, {c:'D', l:'sues me'} ];
+const R_CTF_FAILS = [ {c:'G', l:'How Your mercy never'}, {c:'D', l:'fails me'} ];
+const R_CTF_LOOSE_2CHORD = [ {c:'G', l:'Till the day that death shall'}, {c:'Bm', l:'loose me'} ];
+const R_CTF_LOOSE_3CHORD = [ {c:'G', l:'Till the day that'}, {c:'A', l:'death shall'}, {c:'Bm', l:'loose me'} ];
+const R_CTF_IWILLSING_D = [ {c:'G', l:'I will sing, oh'}, {c:'A', l:'I will'}, {c:'D', l:'sing'} ];
+
+// Reusable lines for Holy Spirit -- Verse 1/2 and the Chorus each get
+// literally repeated later ("REPEAT VERSE 1", "REPEAT VERSE 2X",
+// "REPEAT CHORUS DOWN").
+const R_HS_VERSE1_LINES = [
+  [ {c:'G', l:"There's nothing worth more, that will ever come"}, {c:'C', l:'close'} ],
+  [ {c:'G', l:"No thing can compare, You're our living hope"} ],
+  [ {c:'C', l:'Your Presence Lord'} ],
+];
+const R_HS_VERSE2_LINES = [
+  [ {c:'G', l:"I've tasted and seen, of the sweetest of"}, {c:'C', l:'loves'} ],
+  [ {c:'G', l:'Where my heart becomes free, and my shame is undone'} ],
+  [ {c:'C', l:'In Your Presence Lord'} ],
+];
+const R_HS_CHORUS_LINES = [
+  [ {c:'G', l:'Holy Spirit You are welcome here'} ],
+  [ {c:'C', l:'Come flood this place and fill the'}, {c:'Am', l:'atmosphere'} ],
+  [ {c:'G', l:'Your Glory God is what our hearts long for'} ],
+  [ {c:'C', l:'To be overcome by Your'}, {c:'Am', l:'Presence Lord'} ],
+];
+
 const SONGS = [
   {
     id: 'ten-thousand-reasons',
+    code: 'a',  // permanent short id for URL sharing -- never reassign
     title: '10,000 Reasons (Bless the Lord)',
     artist: 'Matt Redman',
     originalKey: 'G',
@@ -689,6 +899,7 @@ const SONGS = [
   },
   {
     id: 'praise',
+    code: 'b',  // permanent short id for URL sharing -- never reassign
     title: 'Praise',
     artist: 'Elevation Worship & Maverick City',
     originalKey: 'C',
@@ -741,6 +952,7 @@ const SONGS = [
   },
   {
     id: 'jireh',
+    code: 'c',  // permanent short id for URL sharing -- never reassign
     title: 'Jireh',
     artist: 'Elevation Worship & Maverick City',
     originalKey: 'E',
@@ -829,6 +1041,7 @@ const SONGS = [
   },
   {
     id: 'trust-in-god',
+    code: 'd',  // permanent short id for URL sharing -- never reassign
     title: 'Trust in God',
     artist: 'Elevation Worship',
     originalKey: 'C',
@@ -871,6 +1084,7 @@ const SONGS = [
   },
   {
     id: 'o-come-to-the-altar',
+    code: 'e',  // permanent short id for URL sharing -- never reassign
     title: 'O Come to the Altar',
     artist: 'Elevation Worship',
     originalKey: 'A',
@@ -915,6 +1129,7 @@ const SONGS = [
   },
   {
     id: 'great-are-you-lord',
+    code: 'f',  // permanent short id for URL sharing -- never reassign
     title: 'Great Are You Lord',
     artist: 'All Sons & Daughters',
     originalKey: 'A',
@@ -951,6 +1166,7 @@ const SONGS = [
   },
   {
     id: 'waymaker',
+    code: 'g',  // permanent short id for URL sharing -- never reassign
     title: 'Waymaker',
     artist: 'Sinach / Leeland',
     originalKey: 'E',
@@ -998,6 +1214,7 @@ const SONGS = [
   },
   {
     id: 'the-stand',
+    code: 'h',  // permanent short id for URL sharing -- never reassign
     title: 'The Stand',
     artist: 'Hillsong United',
     originalKey: 'D',
@@ -1047,6 +1264,7 @@ const SONGS = [
   },
   {
     id: 'holy-forever',
+    code: 'i',  // permanent short id for URL sharing -- never reassign
     title: 'Holy Forever',
     artist: 'Chris Tomlin',
     originalKey: 'G',
@@ -1088,6 +1306,7 @@ const SONGS = [
   },
   {
     id: 'i-will-look-up',
+    code: 'j',  // permanent short id for URL sharing -- never reassign
     title: 'I Will Look Up',
     artist: 'Lauren Daigle',
     originalKey: 'A',
@@ -1135,6 +1354,7 @@ const SONGS = [
   },
   {
     id: 'gratitude',
+    code: 'k',  // permanent short id for URL sharing -- never reassign
     title: 'Gratitude',
     artist: 'Brandon Lake',
     originalKey: 'C',
@@ -1194,6 +1414,7 @@ const SONGS = [
   },
   {
     id: 'his-mercy-is-more',
+    code: 'l',  // permanent short id for URL sharing -- never reassign
     title: 'His Mercy Is More',
     artist: 'Matt Boswell & Matt Papa',
     originalKey: 'E',
@@ -1242,6 +1463,7 @@ const SONGS = [
   },
   {
     id: 'be-thou-my-vision',
+    code: 'm',  // permanent short id for URL sharing -- never reassign
     title: 'Be Thou My Vision',
     artist: 'Dallan Forgaill / Ascend the Hill',
     originalKey: 'C',
@@ -1285,6 +1507,7 @@ const SONGS = [
   },
   {
     id: 'goodness-of-god',
+    code: 'n',  // permanent short id for URL sharing -- never reassign
     title: 'Goodness of God',
     artist: 'Bethel Music / CeCe Winans',
     originalKey: 'G',
@@ -1325,6 +1548,7 @@ const SONGS = [
   },
   {
     id: 'raise-a-hallelujah',
+    code: 'o',  // permanent short id for URL sharing -- never reassign
     title: 'Raise a Hallelujah',
     artist: 'Bethel Music',
     originalKey: 'C',
@@ -1363,6 +1587,475 @@ const SONGS = [
       ]},
     ],
   },
+  {
+    id: 'promises',
+    code: 'p',  // permanent short id for URL sharing -- never reassign
+    title: 'Promises',
+    artist: 'Maverick City Music / Joe L Barnes & Naomi Raine',
+    originalKey: 'G',
+    tempo: 74,
+    time: '4/4',
+    sections: [
+      { type:'intro', chordLine:['Em','C','G','Dsus','Em','C','G','Dsus'] },
+      { type:'verse', n:1, lines:[
+        [ {c:'Em', l:'God of Abra-'}, {c:'C', l:'ham,'}, {c:'G', l:'God of covenant and of faithful promi-'}, {c:'D', l:'ses'} ],
+        [ {c:'Em', l:'Time and time a-'}, {c:'C', l:'gain'}, {c:'G', l:"You have proven You'll do just what you"}, {c:'D', l:'said'} ],
+      ]},
+      { type:'prechorus', lines: R_PROMISES_PRECHORUS_LINES },
+      { type:'chorus', lines: R_PROMISES_CHORUS_LINES },
+      { type:'instrumental', note:'Turnaround', chordLine:['Em','C','G','Dsus','Em','C','G','Dsus'] },
+      { type:'verse', n:2, lines:[
+        [ {c:'Em', l:'God from age to'}, {c:'C', l:'age,'} ],
+        [ {c:'G', l:'Though the earth may pass away,'}, {c:'D', l:'Your word remains the same'} ],
+        [ {c:'Em', l:'Your history can'}, {c:'C', l:"prove there's nothing You can't"}, {c:'G', l:'do,'}, {c:'D', l:"You're faithful and True"} ],
+      ]},
+      { type:'prechorus', lines: R_PROMISES_PRECHORUS_LINES },
+      { type:'chorus', lines: R_PROMISES_CHORUS_LINES },
+      { type:'interlude', note:'Worship Freely · ×2', chordLine:['C','G','Em','Dsus','C','G','Em','Dsus'] },
+      { type:'bridge', lines:[
+        [ {c:'C', l:'I put my faith'}, {c:'G', l:'in Jesus'} ],
+        [ {c:'Em', l:'My anchor to the'}, {c:'D', l:'ground'} ],
+        [ {c:'C', l:'My hope and firm foun-'}, {c:'G', l:'dation'} ],
+        [ {c:'Em', l:"He'll never let me"}, {c:'D', l:'down'} ],
+      ]},
+    ],
+  },
+  {
+    id: 'no-longer-slaves',
+    code: 'q',  // permanent short id for URL sharing -- never reassign
+    title: 'No Longer Slaves',
+    artist: 'Bethel Music',
+    originalKey: 'G',
+    tempo: 68,
+    time: '4/4',
+    sections: [
+      { type:'verse', n:1, lines:[
+        [ {c:'G', l:'You unravel me, with a melody'} ],
+        [ {c:'C', l:'You surround me'}, {c:'D', l:'with a'}, {c:'G', l:'song'} ],
+        [ {c:'G', l:'Of deliverance, from my enemies'} ],
+        [ {c:'C', l:'Till all my'}, {c:'D', l:'fears are'}, {c:'G', l:'gone'} ],
+      ]},
+      { type:'verse', n:2, lines:[
+        [ {c:'G', l:"From my mother's womb"} ],
+        [ {c:'Bm', l:'You have chosen me'} ],
+        [ {c:'C', l:'Love has'}, {c:'D', l:'called my'}, {c:'G', l:'name'} ],
+        [ {c:'G', l:"I've been born again, into Your"}, {c:'Bm', l:'family'} ],
+        [ {c:'C', l:'Your blood flows'}, {c:'D', l:'through my'}, {c:'G', l:'veins'} ],
+      ]},
+      { type:'chorus', note:'×3', lines:[
+        [ {c:'C', l:"I'm no longer a"}, {c:'D', l:'slave to'}, {c:'G', l:'fear'} ],
+        [ {c:'Em', l:'I am a'}, {c:'D', l:'child of'}, {c:'G', l:'God'} ],
+      ]},
+      { type:'tag', lines:[
+        [ {c:'Em', l:'Ohhh,'}, {c:'D', l:'Ohhh,'}, {c:'G', l:'Ohhh,'}, {c:'C', l:'Ohhh'} ],
+      ]},
+      { type:'bridge', lines:[
+        [ {c:'Em', l:'You split the'}, {c:'D', l:'sea so I could'}, {c:'G', l:'walk right'}, {c:'C', l:'through it'} ],
+        [ {c:'Em', l:'My fears are'}, {c:'D', l:'drowned in perfect'}, {c:'G', l:'love'} ],
+        [ {c:'Em', l:'You rescued'}, {c:'D', l:'me and I will'}, {c:'G', l:'stand and'}, {c:'Em', l:'sing'} ],
+        [ {c:'C', l:'I am a'}, {c:'D', l:'child of'}, {c:'G', l:'God'} ],
+      ]},
+    ],
+  },
+  {
+    id: 'oceans',
+    code: 'r',  // permanent short id for URL sharing -- never reassign
+    title: 'Oceans (Where Feet May Fail)',
+    artist: 'Hillsong United',
+    originalKey: 'G',
+    tempo: 66,
+    time: '4/4',
+    sections: [
+      { type:'intro', chordLine:['Em','D/F#','G','D','C'] },
+      { type:'verse', n:1, lines:[
+        [ {c:'Em', l:'You call me out up-'}, {c:'D/F#', l:'on the w-'}, {c:'G', l:'aters'} ],
+        [ {c:'D', l:'The great unknown where feet may'}, {c:'C', l:'fail'} ],
+        [ {c:'Em', l:'And there I find You'}, {c:'D/F#', l:'in the'}, {c:'G', l:'mystery'} ],
+        [ {c:'D', l:'In oceans deep my faith wi-'}, {c:'C', l:'ll stand'} ],
+      ]},
+      { type:'chorus', lines: R_OCEANS_CHORUS_LINES },
+      { type:'interlude', chordLine:['Em','D/F#','G','D','C'] },
+      { type:'verse', n:2, lines:[
+        [ {c:'Em', l:'Your grace abounds in'}, {c:'D/F#', l:'deepest'}, {c:'G', l:'waters'} ],
+        [ {c:'D', l:'Your sovereign hand will be my'}, {c:'C', l:'guide'} ],
+        [ {c:'Em', l:'Where feet may fail and'}, {c:'D/F#', l:'fear surr-'}, {c:'G', l:'ounds me'} ],
+        [ {c:'D', l:"You've never failed and You won't start"}, {c:'C', l:'now'} ],
+      ]},
+      { type:'chorus', lines: R_OCEANS_CHORUS_LINES },
+      { type:'instrumental', note:'×2', chordLine:['Em','D/F#','G','D','C'] },
+      { type:'instrumental', note:'×2', chordLine:['Em','C','G','D'] },
+      { type:'bridge', n:1, note:'×3', lines:[
+        [ {c:'Em', l:'Spirit lead me where my'}, {c:'C', l:'trust is without borders'} ],
+        [ {c:'G', l:'Let me walk upon the waters'} ],
+        [ {c:'D', l:'Wherever You would call me'} ],
+        [ {c:'Em', l:'Take me deeper than my'}, {c:'C', l:'feet could ever wander'} ],
+        [ {c:'G', l:'And my faith will be made stronger'} ],
+        [ {c:'D', l:'In the presence of my Saviour'} ],
+      ]},
+      { type:'bridge', n:2, lines:[
+        [ {c:'C', l:'Spirit lead me where my'}, {c:'G', l:'trust is without borders'} ],
+        [ {c:'D', l:'Let me walk upon the waters'} ],
+        [ {c:'Am', l:'Wherever You would call me'} ],
+        [ {c:'C', l:'Take me deeper than my'}, {c:'G', l:'feet could ever wander'} ],
+        [ {c:'D', l:'And my faith will be made stronger'} ],
+        [ {c:'Am', l:'In the presence of my Saviour'} ],
+      ]},
+      { type:'bridge', n:3, note:'×2', lines:[
+        [ {c:'Em', l:'Spirit lead me'}, {c:'D', l:'where my'}, {c:'G', l:'trust is without borders'} ],
+        [ {c:'D', l:'Let me walk upon the waters'} ],
+        [ {c:'Am', l:'Wherever You would call me'} ],
+        [ {c:'Em', l:'Take me deeper'}, {c:'D', l:'than my'}, {c:'G', l:'feet could ever wander'} ],
+        [ {c:'D', l:'And my faith will be made stronger'} ],
+        [ {c:'Am', l:'In the presence of my Saviour'} ],
+      ]},
+      { type:'instrumental', note:'×2', chordLine:['Em','D','G','D','Am'] },
+    ],
+  },
+  {
+    id: 'in-christ-alone',
+    code: 's',  // permanent short id for URL sharing -- never reassign
+    title: 'In Christ Alone',
+    artist: 'Keith Getty & Stuart Townend',
+    originalKey: 'E',
+    tempo: 76,
+    time: '4/4',
+    sections: [
+      { type:'intro', note:'×2', chordLine: R_ICA_INTRO_CHORDS },
+      { type:'verse', n:1, lines:[
+        [ {c:'E', l:'In Christ alone my'}, {c:'C#m7', l:'hope is'}, {c:'B4', l:'found'} ],
+        [ {c:'E/G#', l:'He is my'}, {c:'A2', l:'light, my'}, {c:'B4', l:'strength, my'}, {c:'E', l:'song'} ],
+        [ {c:'A2', l:'this corner-'}, {c:'E', l:'stone, this'}, {c:'C#m7', l:'solid'}, {c:'B4', l:'ground'} ],
+        [ {c:'E/G#', l:'firm through the'}, {c:'A2', l:'fiercest'}, {c:'B4', l:'drought and'}, {c:'E', l:'storm'} ],
+        [ {c:'E/G#', l:'What heights of'}, {c:'A2', l:'love, what'}, {c:'C#m7', l:'depths of'}, {c:'B4', l:'peace'} ],
+        [ {c:'E/G#', l:'when fears are'}, {c:'A2', l:'stilled, when'}, {c:'C#m7', l:'strivings'}, {c:'B4', l:'cease'} ],
+        [ {c:'A2', l:'My comfor-'}, {c:'E', l:'ter, my'}, {c:'C#m7', l:'all in'}, {c:'B4', l:'all'} ],
+        [ {c:'E/G#', l:'Here in the'}, {c:'A2', l:'love of'}, {c:'B', l:'Christ I'}, {c:'E', l:'stand'} ],
+      ]},
+      { type:'intro', note:'×2', chordLine: R_ICA_INTRO_CHORDS },
+      { type:'verse', n:2, lines:[
+        [ {c:'E', l:'There in the ground'}, {c:'C#m7', l:'His'}, {c:'B4', l:'body lay'} ],
+        [ {c:'E/G#', l:'Light of the'}, {c:'A2', l:'world by'}, {c:'B4', l:'darkness'}, {c:'E', l:'slain'} ],
+        [ {c:'A2', l:'then, bursting'}, {c:'E', l:'forth in'}, {c:'C#m7', l:'glorious'}, {c:'B4', l:'day'} ],
+        [ {c:'E/G#', l:'up from the'}, {c:'A2', l:'grave He'}, {c:'B', l:'rose'}, {c:'E', l:'again'} ],
+        [ {c:'A2', l:'And as He stands in'}, {c:'C#m7', l:'vic-'}, {c:'B4', l:'tory'} ],
+        [ {c:'E/G#', l:"sin's curse has"}, {c:'A2', l:'lost'}, {c:'C#m7', l:'its grip on'}, {c:'B4', l:'me'} ],
+        [ {c:'A2', l:'for I am'}, {c:'E', l:'His and'}, {c:'C#m7', l:'He is'}, {c:'B4', l:'mine'} ],
+        [ {c:'E/G#', l:'bought with the'}, {c:'A2', l:'precious'}, {c:'B4', l:'blood of'}, {c:'E', l:'Christ'} ],
+      ]},
+      { type:'intro', note:'×2', chordLine: R_ICA_INTRO_CHORDS },
+      { type:'verse', n:3, lines:[
+        [ {c:'E', l:'No guilt in life, no'}, {c:'C#m7', l:'fear in'}, {c:'B', l:'death'} ],
+        [ {c:'E/G#', l:'this is the'}, {c:'A2', l:"pow'r of"}, {c:'B4', l:'Christ in'}, {c:'E', l:'me'} ],
+        [ {c:'A2', l:"from life's first"}, {c:'E', l:'cry to'}, {c:'C#m7', l:'final'}, {c:'B', l:'breath'} ],
+        [ {c:'E/G#', l:'Jesus com-'}, {c:'A2', l:'mands my'}, {c:'B', l:'destiny'}, {c:'E', l:''} ],
+        [ {c:'A2', l:"No pow'r of hell, no"}, {c:'C#m7', l:'scheme of'}, {c:'B', l:'man'} ],
+        [ {c:'E/G#', l:'can ever'}, {c:'A2', l:'pluck me'}, {c:'C#m7', l:'from His'}, {c:'B', l:'hand'} ],
+        [ {c:'A2', l:"'til He"}, {c:'E', l:'returns or'}, {c:'C#m7', l:'calls me'}, {c:'B4', l:'home'} ],
+        [ {c:'E/G#', l:'here in the'}, {c:'A2', l:"pow'r of"}, {c:'B4', l:"Christ I'll"}, {c:'E', l:'stand'} ],
+      ]},
+      { type:'intro', note:'×2', chordLine: R_ICA_INTRO_CHORDS },
+      { type:'bridge', lines:[
+        [ {c:'E', l:'I find my strength,'}, {c:'A2', l:'I find my hope'} ],
+        [ {c:'C#m7', l:'I find my help'}, {c:'A2', l:'in Christ alone'} ],
+        [ {c:'E', l:'When fear assails,'}, {c:'A2', l:'when darkness falls'} ],
+        [ {c:'C#m7', l:'I find my peace'}, {c:'A2', l:'in Christ alone'} ],
+        [ {c:'E', l:'I give my life,'}, {c:'F#m7', l:'I give my all'} ],
+        [ {c:'E/G#', l:'I sing my song'}, {c:'A2', l:'to Christ alone'} ],
+        [ {c:'E/B', l:'The King of kings,'}, {c:'F#m7', l:'the Lord I love'} ],
+        [ {c:'E/G#', l:'All heaven sings'}, {c:'A2', l:'to Christ alone'}, {c:'E', l:''} ],
+      ]},
+      { type:'intro', note:'×2', chordLine: R_ICA_INTRO_CHORDS },
+      { type:'verse', n:4, lines:[
+        [ {c:'E', l:'Til He returns or'}, {c:'C#m7', l:'calls me'}, {c:'B4', l:'home'} ],
+        [ {c:'E/G#', l:'Here in the'}, {c:'A2', l:'power of'}, {c:'B4', l:"Christ I'll"}, {c:'C#m7', l:'stand'} ],
+        [ {c:'E/G#', l:'Here in the'}, {c:'A2', l:'power of'}, {c:'B4', l:'Christ we'}, {c:'E', l:'stand'} ],
+      ]},
+    ],
+  },
+  {
+    id: 'o-praise-the-name',
+    code: 't',  // permanent short id for URL sharing -- never reassign
+    title: 'O Praise the Name (Anastasis)',
+    artist: 'Hillsong Worship',
+    originalKey: 'C',
+    tempo: 70,
+    time: '4/4',
+    sections: [
+      { type:'verse', n:1, lines:[
+        [ {c:'C', l:'I cast my mind to Calvary'} ],
+        [ {c:'G', l:'Where Jesus bled and died for'}, {c:'Am', l:'me'} ],
+        [ {c:'F', l:'I see His wounds, His hands, His'}, {c:'C', l:'feet'} ],
+        [ {c:'G', l:'My Saviour on that cursed'}, {c:'C', l:'tree'} ],
+      ]},
+      { type:'verse', n:2, lines:[
+        [ {c:'C', l:'His body bound and drenched in tears'} ],
+        [ {c:'G', l:"They laid Him down in Joseph's"}, {c:'Am', l:'tomb'} ],
+        [ {c:'F', l:'The entrance sealed by heavy'}, {c:'C', l:'stone'} ],
+        [ {c:'G', l:'Messiah still and all'}, {c:'C', l:'alone'} ],
+      ]},
+      { type:'chorus', lines:[
+        [ {c:'C', l:'O praise the Name of the'}, {c:'F', l:'Lord our'}, {c:'C', l:'God'} ],
+        [ {c:'Am', l:'O praise His Name'}, {c:'Gsus G', l:'forevermore'} ],
+        [ {c:'C', l:'For endless days we will'}, {c:'F', l:'sing Your'}, {c:'Am', l:'praise'} ],
+        R_OPRAISE_TAGLINE,
+      ]},
+      { type:'verse', n:3, lines:[
+        [ {c:'C', l:'And then on the third at break of dawn'} ],
+        [ {c:'G', l:'The Son of Heaven rose'}, {c:'Am', l:'again'} ],
+        [ {c:'F', l:'O trampled death, where is'}, {c:'C', l:'your sting'} ],
+        [ {c:'G', l:'The angels roar for Christ the'}, {c:'C', l:'King'}, {c:'Csus', l:''} ],
+      ]},
+      { type:'verse', n:4, lines:[
+        [ {c:'C', l:'He shall return in robes of white'} ],
+        [ {c:'G', l:'The blazing sun shall pierce'}, {c:'Am', l:'the night'} ],
+        [ {c:'F', l:'And He will rise among the'}, {c:'C', l:'saints'} ],
+        [ {c:'G', l:"My gaze transfixed on Jesus'"}, {c:'C', l:'face'} ],
+      ]},
+      { type:'bridge', lines:[
+        R_OPRAISE_TAGLINE,
+        R_OPRAISE_TAGLINE,
+      ]},
+    ],
+  },
+  {
+    id: 'build-my-life',
+    code: 'u',  // permanent short id for URL sharing -- never reassign
+    title: 'Build My Life',
+    artist: 'Passion / Pat Barrett',
+    originalKey: 'G',
+    tempo: 72,
+    time: '4/4',
+    sections: [
+      { type:'intro', chordLine:['G','C/G','G/B','C/G'] },
+      { type:'verse', n:1, lines: R_BML_VERSE1_LINES },
+      { type:'verse', n:2, lines: R_BML_VERSE2_LINES },
+      { type:'chorus', lines:[
+        [ {c:'Cmaj9', l:'Holy, there is no one'}, {c:'Am7', l:'like You'} ],
+        [ {c:'G', l:'There is none beside You'} ],
+        [ {c:'Em7', l:'Open up my eyes in wonder'} ],
+        [ {c:'Cmaj9', l:'Show me who You are and'}, {c:'Am7', l:'fill me'} ],
+        [ {c:'G', l:'With Your heart and lead me'} ],
+        [ {c:'Em7', l:'In Your love to those around me'}, {c:'Cmaj9', l:''} ],
+      ]},
+      { type:'verse', n:1, lines: R_BML_VERSE1_LINES },
+      { type:'verse', n:2, lines: R_BML_VERSE2_LINES },
+      { type:'chorus', n:2, lines: R_BML_CHORUS2_LINES },
+      { type:'chorus', n:2, lines: R_BML_CHORUS2_LINES },
+      { type:'interlude', note:'×2', chordLine:['Cmaj9','Dsus','Em7','G/B'] },
+      { type:'bridge', lines: R_BML_BRIDGE1_LINES },
+      { type:'bridge', lines: R_BML_BRIDGE1_LINES },
+      { type:'chorus', n:3, lines:[
+        [ {c:'Cmaj9', l:'Holy, there is no one'}, {c:'Am7', l:'like You'} ],
+        [ {c:'D', l:'There is none beside You'} ],
+        [ {c:'Em7', l:'Open up my eyes in wonder'} ],
+        [ {c:'Cmaj9', l:'Show me who You are and'}, {c:'Am7', l:'fill me'} ],
+        [ {c:'G', l:'With Your heart and lead me'} ],
+        [ {c:'Em7', l:'In Your love to those around me'} ],
+      ]},
+      { type:'chorus', n:4, lines:[
+        [ {c:'Cmaj9', l:'Holy, there is no one'}, {c:'Am7', l:'like You'} ],
+        [ {c:'D', l:'There is none beside You'} ],
+        [ {c:'Em7', l:'Open up my eyes in wonder'} ],
+        [ {c:'Cmaj9', l:'Show me who You are and'}, {c:'Am7', l:'fill me'} ],
+        [ {c:'D', l:'With Your heart and lead me'} ],
+        [ {c:'Em7', l:'In Your love to those around me'} ],
+      ]},
+      { type:'bridge', n:2, lines:[
+        [ {c:'Cmaj9', l:'I will build my'}, {c:'Dsus', l:'life upon Your'}, {c:'Em7', l:'love'} ],
+        [ {c:'G/B', l:'It is a firm foundation'}, {c:'Cmaj9', l:'I will put my'}, {c:'Dsus', l:'trust in You a-'}, {c:'Em7', l:'lone'} ],
+        [ {c:'G/B', l:'And I will not be, I will never be shaken'}, {c:'C2', l:''} ],
+      ]},
+      { type:'bridge', n:3, lines:[
+        [ {c:'Cmaj9', l:'I will build my'}, {c:'Dsus', l:'life upon Your'}, {c:'Em7', l:'love'} ],
+        [ {c:'G/B', l:'It is a firm foundation'}, {c:'Cmaj9', l:'I will put my'}, {c:'Dsus', l:'trust in You a-'}, {c:'Em7', l:'lone'} ],
+        [ {c:'G/B', l:'And I will not be shaken'}, {c:'C2', l:''} ],
+      ]},
+    ],
+  },
+  {
+    id: 'rest-on-us',
+    code: 'v',  // permanent short id for URL sharing -- never reassign
+    title: 'Rest on Us',
+    artist: 'Elevation Worship (Chandler Moore & Tiffany Hudson)',
+    originalKey: 'G',
+    tempo: 70,
+    time: '4/4',
+    sections: [
+      { type:'verse', n:1, lines:[
+        [ {c:'G', l:'As the Spirit was moving over the water'} ],
+        [ {c:'C', l:'Spirit come move over us'} ],
+        R_ROU_TAIL_1,
+        R_ROU_TAIL_2,
+      ]},
+      { type:'chorus', lines:[
+        [ {c:'G', l:'Come down Spirit when you move you make'}, {c:'C', l:'My heart pound when you fill the'}, {c:'D', l:'room'} ],
+        [ {c:'Em', l:"You're here and I know you are"}, {c:'G', l:'moving'} ],
+        [ {c:'C', l:"I'm here and I know you will fill me"} ],
+      ]},
+      { type:'verse', n:2, lines:[
+        [ {c:'G', l:'Fire and wind come and do it again'} ],
+        [ {c:'C', l:'Open up the gates let Heaven on in'} ],
+        R_ROU_TAIL_1,
+        R_ROU_TAIL_2,
+      ]},
+      { type:'bridge', lines:[
+        [ {c:'G', l:'Holy Spirit'} ],
+        [ {c:'Am', l:'Come rest on us'} ],
+        [ {c:'Em', l:"You're all we want"} ],
+        [ {c:'C', l:"You're all we want"} ],
+      ]},
+    ],
+  },
+  {
+    id: 'come-thou-fount',
+    code: 'w',  // permanent short id for URL sharing -- never reassign
+    title: 'Come Thou Fount of Every Blessing',
+    artist: 'Traditional (Robert Robinson) / Modern Arrangement',
+    originalKey: 'D',
+    tempo: 72,
+    time: '4/4',
+    sections: [
+      { type:'intro', note:'×4, ending on D', chordLine:['Bm','G','D'] },
+      { type:'verse', n:1, lines:[
+        [ {c:'D', l:'Come Thou fount of every'}, {c:'A', l:'blessing'} ],
+        [ {c:'G', l:'Tune my heart to sing Thy'}, {c:'D', l:'grace'} ],
+        [ {c:'D', l:'Streams of mercy never'}, {c:'A', l:'ceasing'} ],
+        [ {c:'G', l:'Call for songs of loudest'}, {c:'D', l:'praise'} ],
+        [ {c:'Bm', l:'Teach me some mel-'}, {c:'G', l:'odious'}, {c:'D', l:'sonnet'} ],
+        [ {c:'Bm', l:'Sung by flaming'}, {c:'G', l:'tongues a-'}, {c:'D', l:'bove'} ],
+        [ {c:'D', l:"Praise the mount I'm fixed up-"}, {c:'A', l:'on it'} ],
+        [ {c:'G', l:'Mount of Thy redeeming'}, {c:'D', l:'love'} ],
+      ]},
+      { type:'verse', n:2, lines:[
+        [ {c:'D', l:'Here I raise my Ebe-'}, {c:'A', l:'nezer'} ],
+        [ {c:'G', l:'Hither by Thy help I'}, {c:'D', l:'come'} ],
+        [ {c:'D', l:'And I hope by Thy good'}, {c:'A', l:'pleasure'} ],
+        [ {c:'G', l:'Safely to arrive at'}, {c:'D', l:'home'} ],
+        [ {c:'Bm', l:'Jesus sought me'}, {c:'G', l:'when a'}, {c:'D', l:'stranger'} ],
+        [ {c:'Bm', l:'Wandering from the'}, {c:'G', l:'fold of'}, {c:'D', l:'God'} ],
+        [ {c:'D', l:'He to rescue me from'}, {c:'A', l:'danger'} ],
+        [ {c:'G', l:'Interposed His precious'}, {c:'D', l:'blood'} ],
+      ]},
+      { type:'chorus', lines: R_CTF_CHORUS_LINES },
+      { type:'instrumental', note:'Turnaround, ending on Bm', chordLine:['Bm','G','D','Bm','G','D'] },
+      { type:'verse', n:3, lines:[
+        [ {c:'G', l:'Oh to'}, {c:'D', l:'grace how great a'}, {c:'A', l:'debtor'} ],
+        [ {c:'G', l:"Daily I'm constrained to"}, {c:'D', l:'be'} ],
+        [ {c:'D', l:'Let Thy goodness like a'}, {c:'A', l:'fetter'} ],
+        [ {c:'G', l:'Bind my wandering heart to'}, {c:'D', l:'Thee'} ],
+        R_CTF_PRONE_1,
+        R_CTF_PRONE_2,
+        R_CTF_SEALIT_1,
+        R_CTF_SEALIT_2,
+      ]},
+      { type:'chorus', lines: R_CTF_CHORUS_LINES },
+      { type:'chorus', n:2, lines:[
+        R_CTF_PURSUES, R_CTF_FAILS, R_CTF_LOOSE_2CHORD, R_CTF_IWILLSING_D,
+        R_CTF_PURSUES, R_CTF_FAILS, R_CTF_LOOSE_3CHORD, R_CTF_IWILLSING_D,
+        R_CTF_LOOSE_3CHORD, R_CTF_IWILLSING_D,
+      ]},
+      { type:'outro', lines:[
+        R_CTF_PRONE_1,
+        R_CTF_PRONE_2,
+        R_CTF_SEALIT_1,
+        R_CTF_SEALIT_2,
+        R_CTF_SEALIT_1,
+        R_CTF_SEALIT_2,
+      ]},
+    ],
+  },
+  {
+    id: 'holy-spirit',
+    code: 'x',  // permanent short id for URL sharing -- never reassign
+    title: 'Holy Spirit (You Are Welcome Here)',
+    artist: 'Bryan & Katie Torwalt (Jesus Culture)',
+    originalKey: 'G',
+    tempo: 72,
+    time: '4/4',
+    sections: [
+      { type:'intro', note:'×2, each chord held 2 bars', chordLine:['G','C'] },
+      { type:'verse', n:1, lines: R_HS_VERSE1_LINES },
+      { type:'verse', n:2, lines: R_HS_VERSE2_LINES },
+      { type:'chorus', lines: R_HS_CHORUS_LINES },
+      { type:'interlude', chordLine:['G','C','Am'] },
+      { type:'verse', n:1, lines: R_HS_VERSE1_LINES },
+      { type:'verse', n:2, lines: R_HS_VERSE2_LINES },
+      { type:'chorus', lines: R_HS_CHORUS_LINES },
+      { type:'chorus', lines: R_HS_CHORUS_LINES },
+      { type:'interlude', note:'×2', chordLine:['G','C','Am'] },
+      { type:'bridge', note:'×3', lines:[
+        [ {c:'G', l:'Let us become more aware of Your Presence'} ],
+        [ {c:'G', l:'Let us experience the Glory of Your Goodness'} ],
+        [ {c:'C', l:'Let us be-'}, {c:'G/B', l:'come more a-'}, {c:'Am', l:'ware of Your'}, {c:'G/B', l:'Presence'} ],
+        [ {c:'C', l:'Let us exp-'}, {c:'G/B', l:'erience the'}, {c:'Am', l:'Glory of Your'}, {c:'G/B', l:'Goodness'} ],
+        [ {c:'C', l:'Lord'} ],
+      ]},
+      { type:'chorus', note:'(down)', lines: R_HS_CHORUS_LINES },
+    ],
+  },
+  {
+    id: 'set-a-fire',
+    code: 'y',  // permanent short id for URL sharing -- never reassign
+    title: "Set a Fire (No Place I'd Rather Be)",
+    artist: 'Will Reagan & United Pursuit',
+    originalKey: 'G',
+    tempo: 76,
+    time: '4/4',
+    sections: [
+      { type:'verse', lines:[
+        [ {c:'G', l:"There's no place I'd rather be"} ],
+        [ {c:'C', l:"There's no place I'd rather be"} ],
+        [ {c:'Em', l:"There's no place I'd rather be"} ],
+        [ {c:'C', l:'Than here in your love, here in your love'} ],
+      ]},
+      { type:'chorus', lines:[
+        [ {c:'G', l:'So set a fire down in my'}, {c:'C', l:'soul'} ],
+        [ {c:'Em', l:"That I can't contain, that I can't control"} ],
+        [ {c:'C', l:'I want more of you God'} ],
+        [ {c:'G', l:'I want more of you God'} ],
+      ]},
+    ],
+  },
+  {
+    id: 'your-love-never-fails',
+    code: 'z',  // permanent short id for URL sharing -- never reassign
+    title: 'Your Love Never Fails',
+    artist: 'Jesus Culture (Chris Quilala)',
+    originalKey: 'G',
+    tempo: 76,
+    time: '4/4',
+    sections: [
+      { type:'verse', n:1, lines:[
+        [ {c:'Em', l:'Nothing can'}, {c:'C', l:'separate'} ],
+        [ {c:'G', l:'Even if I'}, {c:'D', l:'ran away'} ],
+        [ {c:'Em', l:'Your love never'}, {c:'C', l:'fails'}, {c:'G', l:''}, {c:'D', l:''} ],
+        [ {c:'Em', l:'I know I still'}, {c:'C', l:'make mistakes'} ],
+        [ {c:'G', l:'But You have new mercies for me'}, {c:'D', l:'everyday'} ],
+        [ {c:'Em', l:'Your love never'}, {c:'C', l:'fails'}, {c:'G', l:''}, {c:'D', l:''} ],
+      ]},
+      { type:'chorus', lines:[
+        [ {c:'C', l:'You stay the'}, {c:'G', l:'same through the ages'}, {c:'D', l:''} ],
+        [ {c:'Am', l:'Your love never'}, {c:'C', l:'changes'} ],
+        [ {c:'G', l:'There may be pain in the night'} ],
+        [ {c:'D', l:'But joy comes in the'}, {c:'Am', l:'morning'} ],
+        [ {c:'C', l:'And'}, {c:'G', l:'when the oceans'}, {c:'D', l:'rage'} ],
+        [ {c:'Am', l:"I don't have to be afraid"}, {c:'C', l:''} ],
+        [ {c:'G', l:'Because I know that You love me'}, {c:'D', l:''} ],
+        [ {c:'Am', l:'Your love never fail'} ],
+      ]},
+      { type:'verse', n:2, lines:[
+        [ {c:'Em', l:'The wind is strong and the'}, {c:'C', l:"water's deep"} ],
+        [ {c:'G', l:"I'm not alone here in these open"}, {c:'D', l:'seas'} ],
+        [ {c:'Em', l:'Cause Your love never'}, {c:'C', l:'fails'}, {c:'G', l:''}, {c:'D', l:''} ],
+        [ {c:'Em', l:'The chasm is'}, {c:'C', l:'far too wide'} ],
+        [ {c:'G', l:"I never thought I'd reach the"}, {c:'D', l:'other side'} ],
+        [ {c:'Em', l:'But Your love never'}, {c:'C', l:'fails'}, {c:'G', l:''}, {c:'D', l:''} ],
+      ]},
+      { type:'bridge', lines:[
+        [ {c:'C', l:'You make all things'}, {c:'Em', l:'work together for my'}, {c:'D', l:'good'} ],
+      ]},
+    ],
+  },
 ];
 
 /* ======================= MUSIC THEORY ======================= */
@@ -1397,7 +2090,7 @@ function stepsBetween(fromKey, toKey){
 
 /* ======================= RENDER ======================= */
 
-const state = { currentId: SONGS[0].id, keyBySong: {}, viewMode: 'full', removedBySong: {}, orderBySong: {}, layout: '1col', focusMode: false, focusPos: 0 };
+const state = { currentId: SONGS[0].id, keyBySong: {}, viewMode: 'full', removedBySong: {}, orderBySong: {}, layout: '1col', focusMode: false, focusPos: 0, setList: [], sharedView: false, hideAllSongs: false, presentingSet: false };
 let dragSourceIdx = null;
 
 function getOrder(song){
@@ -1422,6 +2115,148 @@ function removeSection(songId, idx){
 function undoRemove(songId){
   const stack = state.removedBySong[songId];
   if(stack && stack.length){ stack.pop(); renderAll(); }
+}
+
+/* ======================= THIS WEEK'S SET ======================= */
+
+function addToSet(songId){
+  if(!state.setList.includes(songId)){
+    state.setList.push(songId);
+    renderAll();
+  }
+}
+function removeFromSet(songId){
+  const i = state.setList.indexOf(songId);
+  if(i !== -1){
+    state.setList.splice(i, 1);
+    renderAll();
+  }
+}
+function reorderSet(sourceId, targetId, after){
+  const from = state.setList.indexOf(sourceId);
+  if(from === -1 || sourceId === targetId) return;
+  state.setList.splice(from, 1);
+  let to = state.setList.indexOf(targetId);
+  if(to === -1) to = state.setList.length; else if(after) to += 1;
+  state.setList.splice(to, 0, sourceId);
+  renderAll();
+}
+
+// True only when a song's section order has actually been customized — an
+// untouched song still picks up an identity-order array the first time it's
+// rendered (getOrder's lazy default), and that default shouldn't bloat the
+// shareable URL.
+function isCustomOrder(song){
+  const order = state.orderBySong[song.id];
+  if(!order || order.length !== song.sections.length) return false;
+  return !order.every((v, i)=> v === i);
+}
+
+// A sharp is the only ALL_KEYS character ('#') that isn't safe to reuse as
+// one of our own URL delimiters, so it's swapped for a plain letter.
+function keyToToken(key){ return key === 'F#' ? 'Fs' : key; }
+function tokenToKey(token){ return token === 'Fs' ? 'F#' : token; }
+
+// Packs "This Week's Set" — which songs, in what order, plus any per-song
+// key change / removed sections / custom arrangement — into a compact
+// string for the URL fragment. Only songs actually in the set are encoded,
+// and only fields that differ from that song's default.
+function encodeSet(){
+  const parts = state.setList.map(id=>{
+    const song = SONGS.find(s=>s.id===id);
+    if(!song) return null;
+    const mods = [];
+    const key = state.keyBySong[id];
+    if(key && key !== song.originalKey) mods.push('k' + keyToToken(key));
+    const removed = state.removedBySong[id];
+    if(removed && removed.length) mods.push('r' + removed.join('-'));
+    if(isCustomOrder(song)) mods.push('o' + state.orderBySong[id].join('-'));
+    return mods.length ? `${song.code}:${mods.join(',')}` : song.code;
+  }).filter(Boolean);
+  return parts.join(';');
+}
+
+function decodeSet(str){
+  const result = { setList: [], keyBySong: {}, removedBySong: {}, orderBySong: {} };
+  if(!str) return result;
+  str.split(';').forEach(entry=>{
+    if(!entry) return;
+    const [codePart, modsPart] = entry.split(':');
+    const song = SONGS.find(s=> s.code === codePart);
+    if(!song) return; // unknown/retired code -- skip rather than break the whole link
+    result.setList.push(song.id);
+    if(!modsPart) return;
+    modsPart.split(',').forEach(tok=>{
+      if(!tok) return;
+      const kind = tok[0], rest = tok.slice(1);
+      if(!rest) return;
+      if(kind === 'k'){
+        const key = tokenToKey(rest);
+        if(ALL_KEYS.includes(key)) result.keyBySong[song.id] = key;
+      } else if(kind === 'r'){
+        result.removedBySong[song.id] = rest.split('-').map(n=>parseInt(n,10)).filter(n=>!isNaN(n) && n>=0 && n<song.sections.length);
+      } else if(kind === 'o'){
+        const order = rest.split('-').map(n=>parseInt(n,10));
+        const valid = order.length === song.sections.length && order.every(n=>!isNaN(n)) &&
+          new Set(order).size === order.length && order.every(n=> n>=0 && n<song.sections.length);
+        if(valid) result.orderBySong[song.id] = order;
+      }
+    });
+  });
+  return result;
+}
+
+// Builds the "#set=..." hash fragment for the current state. Pass
+// forceShared:true to always stamp the &shared=1 marker (used by the Share
+// button, so the link it hands out is marked as shared regardless of
+// whether *this* browser's own address bar currently carries the marker).
+function buildSetHash(forceShared){
+  const encoded = encodeSet();
+  if(!encoded) return '';
+  const shared = forceShared || state.sharedView;
+  return '#set=' + encoded + (shared ? '&shared=1' : '');
+}
+
+// Rewrites the URL's #set= fragment to match current state, without adding
+// a browser-history entry for every keystroke/toggle/drag. Once a page has
+// been opened from a shared link (state.sharedView), the &shared=1 marker
+// is kept in the address bar too, so a refresh or bookmark still knows this
+// is a shared link and keeps "All Songs" collapsed by default.
+function syncUrlFromState(){
+  const suffix = (location.pathname || '') + (location.search || '') + buildSetHash(false);
+  try{ history.replaceState(null, '', suffix); }
+  catch(e){ /* file:// or sandboxed contexts may block history API -- URL just won't self-update */ }
+}
+
+// Parses "#set=<entries>&shared=1" into its two parts without assuming
+// &shared=1 is the only (or last) extra param that might ever be added.
+function parseSetHash(){
+  const raw = (location.hash || '').replace(/^#/, '');
+  if(!raw.startsWith('set=')) return null;
+  const [setPart, ...rest] = raw.split('&');
+  const params = new URLSearchParams(rest.join('&'));
+  return { encoded: setPart.slice(4), shared: params.get('shared') === '1' };
+}
+
+// Reads a #set=... link on page load and applies it to state before the
+// first render, so opening a shared link shows the set immediately. A link
+// carrying &shared=1 collapses "All Songs" behind an "Add more songs"
+// button, since a link handed to someone else is usually meant to be read,
+// not edited from scratch.
+function loadSetFromLocation(){
+  const parsed = parseSetHash();
+  if(!parsed) return;
+  const decoded = decodeSet(parsed.encoded);
+  if(!decoded.setList.length) return;
+  state.setList = decoded.setList;
+  Object.assign(state.keyBySong, decoded.keyBySong);
+  Object.assign(state.removedBySong, decoded.removedBySong);
+  Object.assign(state.orderBySong, decoded.orderBySong);
+  state.currentId = decoded.setList[0];
+  if(parsed.shared){
+    state.sharedView = true;
+    state.hideAllSongs = true;
+  }
 }
 
 const TYPE_META = {
@@ -1472,11 +2307,42 @@ function computeRepeats(sections){
   });
 }
 
+let setDragSourceId = null;
+
 function renderSongList(){
-  const ul = document.getElementById('songList');
-  ul.innerHTML = SONGS.map((song, i) => {
+  const wrap = document.getElementById('songListWrap');
+  const inSet = new Set(state.setList);
+
+  const setItems = state.setList.map((id, pos)=>{
+    const song = SONGS.find(s=>s.id===id);
+    if(!song) return '';
     const key = song.pending ? null : (state.keyBySong[song.id] || song.originalKey);
     const active = song.id === state.currentId;
+    return `<li class="song-item set-item ${active?'active':''}" data-id="${song.id}">
+      <span class="drag-handle" draggable="true" data-id="${song.id}" title="Drag to reorder the set">
+        <svg viewBox="0 0 10 16" fill="currentColor"><circle cx="2.5" cy="2" r="1.4"/><circle cx="7.5" cy="2" r="1.4"/><circle cx="2.5" cy="8" r="1.4"/><circle cx="7.5" cy="8" r="1.4"/><circle cx="2.5" cy="14" r="1.4"/><circle cx="7.5" cy="14" r="1.4"/></svg>
+      </span>
+      <span class="song-num">${pos+1}</span>
+      <span class="song-meta">
+        <div class="song-title">${esc(song.title)}</div>
+        <div class="song-artist">${esc(song.artist)}</div>
+      </span>
+      <span class="song-key-pill ${key?'':'empty'}">${key || '—'}</span>
+      <button class="set-remove-btn" data-id="${song.id}" title="Remove from this week's set">&times;</button>
+    </li>`;
+  }).join('');
+
+  // Sorted alphabetically by title for display only -- SONGS itself can stay
+  // in whatever order new entries get appended in; this keeps the "All
+  // Songs" list correctly alphabetized without ever needing manual
+  // reordering, and doesn't touch song.id/song.code, so URL sharing
+  // (which is keyed entirely on those, never on array position) is
+  // unaffected regardless of where a new song lands in the source array.
+  const sortedSongs = SONGS.slice().sort((a, b)=> a.title.localeCompare(b.title, undefined, {sensitivity:'base', numeric:true}));
+  const allItems = sortedSongs.map((song, i)=>{
+    const key = song.pending ? null : (state.keyBySong[song.id] || song.originalKey);
+    const active = song.id === state.currentId;
+    const added = inSet.has(song.id);
     return `<li class="song-item ${active?'active':''} ${song.pending?'pending':''}" data-id="${song.id}">
       <span class="song-num">${i+1}</span>
       <span class="song-meta">
@@ -1484,11 +2350,117 @@ function renderSongList(){
         <div class="song-artist">${esc(song.artist)}</div>
       </span>
       <span class="song-key-pill ${key?'':'empty'}">${key || '—'}</span>
+      <button class="set-add-btn ${added?'added':''}" data-id="${song.id}" ${added?'disabled':''}
+        title="${added ? "Already in this week's set" : "Add to this week's set"}">${added ? '&check;' : '&plus;'}</button>
     </li>`;
   }).join('');
-  ul.querySelectorAll('.song-item').forEach(el=>{
-    el.addEventListener('click', ()=>{ state.currentId = el.dataset.id; renderAll(); });
+
+  wrap.innerHTML = `
+    <div class="song-section">
+      <div class="song-section-head">
+        <span class="song-section-title">This Week's Set</span>
+        ${state.setList.length ? `<button class="share-btn" id="shareBtn" title="Copy a shareable link to this set">Share</button>` : ''}
+      </div>
+      ${state.setList.length
+        ? `<ul class="song-list set-list" id="setList">${setItems}</ul>`
+        : `<p class="set-empty">Tap <strong>+</strong> on a song below to build this week's set — the set becomes a shareable link automatically.</p>`}
+    </div>
+    ${state.hideAllSongs
+      ? `<div class="song-section">
+          <button class="reveal-all-btn" id="revealAllSongsBtn">+ Add more songs</button>
+        </div>`
+      : `<div class="song-section">
+          <div class="song-section-head">
+            <span class="song-section-title">All Songs</span>
+            <button class="hide-all-btn" id="hideAllSongsBtn" title="Hide this list">Hide</button>
+          </div>
+          <ul class="song-list" id="allSongsList">${allItems}</ul>
+        </div>`}
+  `;
+
+  wrap.querySelectorAll('.song-item').forEach(el=>{
+    el.addEventListener('click', e=>{
+      if(e.target.closest('button, .drag-handle')) return;
+      state.currentId = el.dataset.id; renderAll();
+    });
   });
+  wrap.querySelectorAll('.set-add-btn').forEach(btn=>{
+    btn.addEventListener('click', e=>{ e.stopPropagation(); addToSet(btn.dataset.id); });
+  });
+  wrap.querySelectorAll('.set-remove-btn').forEach(btn=>{
+    btn.addEventListener('click', e=>{ e.stopPropagation(); removeFromSet(btn.dataset.id); });
+  });
+  const shareBtn = document.getElementById('shareBtn');
+  if(shareBtn) shareBtn.addEventListener('click', e=>{
+    e.stopPropagation();
+    // Always stamp &shared=1 on the copied link, regardless of whether this
+    // browser's own address bar currently carries it -- the person you hand
+    // this to should get the collapsed "All Songs" / "Add more songs" view.
+    const url = location.origin + location.pathname + location.search + buildSetHash(true);
+    const done = ()=>{
+      shareBtn.textContent = 'Copied!';
+      shareBtn.classList.add('copied');
+      setTimeout(()=>{ shareBtn.textContent = 'Share'; shareBtn.classList.remove('copied'); }, 1600);
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url).then(done).catch(()=>{ prompt('Copy this link:', url); });
+    } else {
+      prompt('Copy this link:', url);
+    }
+  });
+  const revealBtn = document.getElementById('revealAllSongsBtn');
+  if(revealBtn) revealBtn.addEventListener('click', e=>{
+    e.stopPropagation();
+    state.hideAllSongs = false;
+    renderAll();
+  });
+  const hideBtn = document.getElementById('hideAllSongsBtn');
+  if(hideBtn) hideBtn.addEventListener('click', e=>{
+    e.stopPropagation();
+    state.hideAllSongs = true;
+    renderAll();
+  });
+
+  const setListEl = document.getElementById('setList');
+  if(setListEl){
+    setListEl.querySelectorAll('.drag-handle').forEach(handle=>{
+      handle.addEventListener('dragstart', e=>{
+        setDragSourceId = handle.dataset.id;
+        const item = handle.closest('.song-item');
+        item.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setDragImage(item, 20, 20);
+        try{ e.dataTransfer.setData('text/plain', setDragSourceId); }catch(err){}
+      });
+      handle.addEventListener('dragend', ()=>{
+        setListEl.querySelectorAll('.song-item').forEach(li=>li.classList.remove('dragging','drag-over-top','drag-over-bottom'));
+        setDragSourceId = null;
+      });
+    });
+    setListEl.querySelectorAll('.song-item').forEach(item=>{
+      item.addEventListener('dragover', e=>{
+        if(setDragSourceId===null) return;
+        e.preventDefault();
+        const targetId = item.dataset.id;
+        if(targetId === setDragSourceId) return;
+        const rect = item.getBoundingClientRect();
+        const after = (e.clientY - rect.top) > rect.height/2;
+        item.classList.toggle('drag-over-top', !after);
+        item.classList.toggle('drag-over-bottom', after);
+      });
+      item.addEventListener('dragleave', ()=>{
+        item.classList.remove('drag-over-top','drag-over-bottom');
+      });
+      item.addEventListener('drop', e=>{
+        e.preventDefault();
+        const targetId = item.dataset.id;
+        const after = item.classList.contains('drag-over-bottom');
+        item.classList.remove('drag-over-top','drag-over-bottom');
+        if(setDragSourceId===null || targetId===setDragSourceId) return;
+        reorderSet(setDragSourceId, targetId, after);
+      });
+    });
+  }
 }
 
 function renderChunk(chunk, steps, useFlats){
@@ -1546,10 +2518,16 @@ function renderSection(section, idx, steps, useFlats, repeatInfo, focused){
 }
 
 function renderMain(){
-  const song = SONGS.find(s=>s.id===state.currentId);
   const main = document.getElementById('main');
   const appEl = document.querySelector('.app');
-  if(appEl) appEl.classList.toggle('focus-active', !!(state.focusMode && !song.pending));
+  if(appEl) appEl.classList.toggle('focus-active', !!state.focusMode);
+
+  if(state.focusMode){
+    renderFocusView();
+    return;
+  }
+
+  const song = SONGS.find(s=>s.id===state.currentId);
 
   if(song.pending){
     main.innerHTML = `
@@ -1573,11 +2551,6 @@ function renderMain(){
   const removedStack = state.removedBySong[song.id] || [];
   const order = getOrder(song);
   const visibleIdx = order.filter(i=>!removedStack.includes(i));
-
-  if(state.focusMode){
-    renderFocusView(song, steps, useFlats);
-    return;
-  }
 
   const keyOptions = ALL_KEYS.map(k=>`<option value="${k}" ${k===currentKey?'selected':''}>${k}</option>`).join('');
   const nav = visibleIdx.map(idx=>{
@@ -1685,7 +2658,10 @@ function renderMain(){
     window.print();
     setTimeout(restore, 3000); // fallback for browsers that skip afterprint on "Save as PDF"
   });
-  document.getElementById('presentBtn').addEventListener('click', ()=> enterFocusMode(song));
+  document.getElementById('presentBtn').addEventListener('click', ()=>{
+    if(getPresentableSetSongs().length > 1) openSetPresentPrompt();
+    else enterFocusMode(false);
+  });
   document.getElementById('keySelect').addEventListener('change', e=>{
     state.keyBySong[song.id] = e.target.value; renderAll();
   });
@@ -1745,16 +2721,27 @@ function renderFocusPartialCard(section, sectionIdx, steps, useFlats, position, 
   </div>`;
 }
 
-function renderFocusView(song, steps, useFlats){
+// Marks where one song ends and the next begins in a whole-set presentation
+// — the "next song" the request asks to see flagged in the continuous scroll.
+function renderSetSongDivider(song, isFirst){
+  return `<div class="set-song-divider${isFirst ? ' first' : ''}">
+    <span class="set-song-divider-label">${isFirst ? 'Now Presenting' : 'Next Song'}</span>
+    <span class="set-song-divider-title">${esc(song.title)}</span>
+    <span class="set-song-divider-artist">${esc(song.artist)}</span>
+  </div>`;
+}
+
+function renderFocusView(){
   const main = document.getElementById('main');
-  const groups = buildSlideGroups(song);
-  const positions = flattenFocusPositions(groups);
+  const ctx = getFocusPositions();
+  const { positions } = ctx;
 
   if(!positions.length){
+    const fallbackTitle = state.presentingSet ? "This Week's Set" : (ctx.songs[0] ? ctx.songs[0].title : '');
     main.innerHTML = `
       <div class="focus-bar">
         <button class="focus-exit" id="focusExit">&times; Exit Focus</button>
-        <div class="focus-title">${esc(song.title)}</div>
+        <div class="focus-title">${esc(fallbackTitle)}</div>
         <div class="focus-counter"></div>
       </div>
       <div class="empty-state"><h3>Nothing to focus on</h3><p>Every section has been removed from this chart.</p></div>`;
@@ -1763,20 +2750,44 @@ function renderFocusView(song, steps, useFlats){
   }
 
   state.focusPos = Math.max(0, Math.min(positions.length - 1, state.focusPos));
+  const focusedPos = positions[state.focusPos];
+  const focusedSong = SONGS.find(s=>s.id===focusedPos.songId);
+  // Keep currentId following the focused position while presenting the
+  // whole set, so exiting focus mode mid-set lands the normal chart view on
+  // whichever song was actually in view, not wherever "Present" was clicked.
+  if(state.presentingSet) state.currentId = focusedPos.songId;
 
+  let lastSongId = null;
   const cards = positions.map((pos, i)=>{
+    const song = SONGS.find(s=>s.id===pos.songId);
+    const currentKey = state.keyBySong[song.id] || song.originalKey;
+    const steps = stepsBetween(song.originalKey, currentKey);
+    const useFlats = FLAT_KEYS.has(currentKey);
     const focused = i === state.focusPos;
+
+    let divider = '';
+    if(state.presentingSet && song.id !== lastSongId){
+      divider = renderSetSongDivider(song, i === 0);
+      lastSongId = song.id;
+    }
+
     const section = song.sections[pos.sectionIdx];
-    return pos.range === null
+    const card = pos.range === null
       ? renderSection(section, pos.sectionIdx, steps, useFlats, null, focused)
       : renderFocusPartialCard(section, pos.sectionIdx, steps, useFlats, pos, focused);
+    return divider + card;
   }).join('');
+
+  const songIdxInSet = state.presentingSet ? ctx.songs.findIndex(s=>s.id===focusedPos.songId) : -1;
+  const counterText = songIdxInSet > -1
+    ? `${state.focusPos + 1} / ${positions.length} &middot; Song ${songIdxInSet + 1}/${ctx.songs.length}`
+    : `${state.focusPos + 1} / ${positions.length}`;
 
   main.innerHTML = `
     <div class="focus-bar">
       <button class="focus-exit" id="focusExit" title="Exit focus mode (Esc)">&times; Exit Focus</button>
-      <div class="focus-title">${esc(song.title)}</div>
-      <div class="focus-counter">${state.focusPos + 1} / ${positions.length}</div>
+      <div class="focus-title">${esc(focusedSong.title)}</div>
+      <div class="focus-counter">${counterText}</div>
     </div>
     <div class="chart-grid focus-mode-grid${state.viewMode==='lyrics' ? ' hide-chords' : ''}" id="focusGrid">${cards}</div>
     <div class="focus-nav">
@@ -1789,17 +2800,30 @@ function renderFocusView(song, steps, useFlats){
   document.getElementById('focusUp').addEventListener('click', ()=> focusMove(-1));
   document.getElementById('focusDown').addEventListener('click', ()=> focusMove(1));
 
+  // Let the user "break into" the song by clicking any card directly —
+  // jumps focus straight to that section/part instead of only stepping
+  // one at a time, then proceeds through the normal focus mechanics
+  // (highlight, scroll, projector sync) from there.
+  document.querySelectorAll('#focusGrid > .section-card').forEach((card, i)=>{
+    card.addEventListener('click', ()=>{
+      if(i === state.focusPos) return;
+      state.focusPos = i;
+      renderFocusView();
+    });
+  });
+
   const focusedCard = main.querySelector('.section-card.focused');
   if(focusedCard && typeof focusedCard.scrollIntoView === 'function'){
     try{ focusedCard.scrollIntoView({behavior:'smooth', block:'center'}); }catch(e){}
   }
 
-  syncPresentToFocus(song);
+  syncPresentToFocus();
 }
 
 function renderAll(){
   renderSongList();
   renderMain();
+  syncUrlFromState();
 }
 
 /* ======================= PROJECTION SLIDES ======================= */
@@ -1827,12 +2851,6 @@ function joinLineText(line){
   return out;
 }
 
-// Builds one slide-group per *visible* section (custom order + removed
-// sections applied), ignoring Minimal/Lyrics view settings — a live
-// projection needs every repeat shown, chords stripped. A section with no
-// lyrics (an intro, an instrumental break) still gets one blank slide so
-// there's always exactly one group per section — that 1:1 mapping is what
-// lets chart-focus navigation and the projector stay in lockstep.
 // Splits `total` lines into the fewest slides that each hold at most
 // `maxPerSlide`, but — unlike a greedy fill — spreads the remainder across
 // the early slides so no split leaves a lopsided, mostly-empty last slide
@@ -1911,18 +2929,67 @@ function flattenFocusPositions(groups){
   return positions;
 }
 
+/* ---- Presenting "This Week's Set" as one continuous run ---- */
+
+// Songs in the set, in set order, that actually have a chart to present.
+function getPresentableSetSongs(){
+  return state.setList
+    .map(id=>SONGS.find(s=>s.id===id))
+    .filter(s=> s && !s.pending && s.sections && s.sections.length);
+}
+
+// Concatenates every presentable set song's slides/positions into one
+// continuous run, each position tagged with the song it belongs to. This is
+// what lets focusMove() cross from the last section of one song straight
+// into the first section of the next with no special-case boundary logic —
+// it's all just one long list, same as a single song's own positions.
+function buildSetPresentation(){
+  const songs = getPresentableSetSongs();
+  const slides = [];
+  const positions = [];
+  songs.forEach(song=>{
+    const groups = buildSlideGroups(song);
+    const localSlides = groups.reduce((acc, g)=> acc.concat(g.slides), []);
+    flattenFocusPositions(groups).forEach((pos, i)=>{
+      positions.push({ ...pos, songId: song.id });
+      slides.push({ songTitle: song.title, label: localSlides[i].label, lines: localSlides[i].lines });
+    });
+  });
+  return { songs, slides, positions };
+}
+
+// Unified context for whatever's currently being focused/presented — either
+// one song's own positions/slides, or (when state.presentingSet) the whole
+// set's concatenated run. Everything downstream (rendering, navigation,
+// projector sync) reads from this instead of caring which mode it's in.
+// Every slide carries its own songTitle (even outside a set presentation)
+// so the projector can always show which song is playing.
+function getFocusPositions(){
+  if(state.presentingSet) return buildSetPresentation();
+  const song = SONGS.find(s=>s.id===state.currentId);
+  if(!song || song.pending) return { songs: [], slides: [], positions: [] };
+  const groups = buildSlideGroups(song);
+  const positions = flattenFocusPositions(groups).map(p=>({ ...p, songId: song.id }));
+  const slides = groups.reduce((acc, g)=> acc.concat(g.slides), [])
+    .map(s=>({ songTitle: song.title, label: s.label, lines: s.lines }));
+  return { songs: [song], slides, positions };
+}
+
 function renderSlide(){
   const { slides, index } = slideState;
+  const songEl = document.getElementById('slideSong');
   const labelEl = document.getElementById('slideLabel');
   const textEl = document.getElementById('slideText');
   const counterEl = document.getElementById('slideCounter');
   if(!slides.length){
+    songEl.textContent = '';
     labelEl.textContent = '';
     textEl.textContent = "No lyrics to project for this song yet.";
     counterEl.textContent = '';
     return;
   }
   const s = slides[index];
+  songEl.textContent = s.songTitle || '';
   labelEl.textContent = s.label;
   textEl.innerHTML = s.lines.map(esc).join('<br>');
   counterEl.textContent = `${index + 1} / ${slides.length}`;
@@ -1937,9 +3004,9 @@ function onSlideKeydown(e){
   else if(e.key==='Escape'){ closeSlides(); }
 }
 
-function openSlides(song){
-  slideState.slides = buildSlides(song);
-  slideState.index = 0;
+function openSlides(){
+  slideState.slides = getFocusPositions().slides;
+  slideState.index = state.focusPos || 0;
   renderSlide();
   document.getElementById('slidesOverlay').hidden = false;
   document.addEventListener('keydown', onSlideKeydown);
@@ -1967,7 +3034,8 @@ function buildPresentHTML(songTitle, slides){
   *{box-sizing:border-box;}
   html,body{margin:0; height:100%; background:#0a0a0a; color:#f5f3ec; font-family:Georgia,'Times New Roman',serif;}
   body{display:flex; align-items:center; justify-content:center; flex-direction:column; padding:8vh 9vw; text-align:center; user-select:none; touch-action:none; overflow:hidden;}
-  .p-label{position:fixed; top:22px; left:28px; font-family:monospace; font-size:.75rem; letter-spacing:.06em; text-transform:uppercase; color:rgba(245,243,236,.4);}
+  .p-song{position:fixed; top:22px; left:28px; font-family:monospace; font-size:.95rem; letter-spacing:.05em; text-transform:uppercase; color:rgba(245,243,236,.65);}
+  .p-label{position:fixed; top:50px; left:28px; font-family:monospace; font-size:.75rem; letter-spacing:.06em; text-transform:uppercase; color:rgba(245,243,236,.4);}
   .p-text{font-weight:600; font-size:clamp(1.8rem, 5vw, 4.2rem); line-height:1.35; max-width:100%;}
   .p-counter{position:fixed; bottom:22px; right:28px; font-family:monospace; font-size:.75rem; color:rgba(245,243,236,.4);}
   .p-nav{position:fixed; top:50%; transform:translateY(-50%); width:52px; height:52px; border-radius:50%; border:none; cursor:pointer; background:rgba(245,243,236,.08); color:#f5f3ec; font-size:1.7rem; display:flex; align-items:center; justify-content:center;}
@@ -1976,6 +3044,7 @@ function buildPresentHTML(songTitle, slides){
   .p-fs{position:fixed; top:18px; right:22px; background:none; border:none; cursor:pointer; color:rgba(245,243,236,.55); font-size:.85rem; font-family:monospace; padding:6px;}
   .p-fs:hover{color:#f5f3ec;}
 </style>
+<div class="p-song" id="song"></div>
 <div class="p-label" id="label"></div>
 <div class="p-text" id="text"></div>
 <div class="p-counter" id="counter"></div>
@@ -1986,15 +3055,17 @@ function buildPresentHTML(songTitle, slides){
   var SLIDES = ${json};
   var i = 0;
   function render(){
+    var songEl = document.getElementById('song');
     var labelEl = document.getElementById('label');
     var textEl = document.getElementById('text');
     var counterEl = document.getElementById('counter');
     if(!SLIDES.length){
       textEl.textContent = 'No lyrics to project for this song yet.';
-      labelEl.textContent = ''; counterEl.textContent = '';
+      songEl.textContent = ''; labelEl.textContent = ''; counterEl.textContent = '';
       return;
     }
     var s = SLIDES[i];
+    songEl.textContent = s.songTitle || '';
     labelEl.textContent = s.label;
     textEl.innerHTML = s.lines.map(function(l){
       var d = document.createElement('div'); d.textContent = l; return d.innerHTML;
@@ -2050,21 +3121,22 @@ function hidePresentBar(){
   document.getElementById('presentBar').hidden = true;
 }
 
-function openPresentWindow(song){
-  const slides = buildSlides(song);
+function openPresentWindow(){
+  const ctx = getFocusPositions();
+  const title = state.presentingSet ? "This Week's Set" : (ctx.songs[0] ? ctx.songs[0].title : 'Presentation');
   if(presentPollTimer){ clearInterval(presentPollTimer); presentPollTimer = null; }
   const w = window.open('', 'worshipPresentDisplay', 'width=1000,height=700,resizable=yes,menubar=no,toolbar=no,location=no,status=no');
   if(!w){
     // Popup blocked — fall back to the in-tab overlay so Present still works.
-    openSlides(song);
+    openSlides();
     return;
   }
   presentWin = w;
   presentWin.document.open();
-  presentWin.document.write(buildPresentHTML(song.title, slides));
+  presentWin.document.write(buildPresentHTML(title, ctx.slides));
   presentWin.document.close();
   try{ presentWin.focus(); }catch(e){}
-  showPresentBar(slides.length);
+  showPresentBar(ctx.slides.length);
   presentPollTimer = setInterval(()=>{
     if(!presentWin || presentWin.closed){
       hidePresentBar();
@@ -2088,39 +3160,58 @@ function onFocusKeydown(e){
   else if(e.key==='Escape'){ exitFocusMode(); }
 }
 
-function enterFocusMode(song){
+function openSetPresentPrompt(){
+  const songs = getPresentableSetSongs();
+  document.getElementById('setPresentModalText').innerHTML =
+    `This week's set has <strong>${songs.length} songs</strong>. Presenting the whole set moves straight from one song into the next, in order, without ever leaving Present Mode.`;
+  document.getElementById('setPresentModal').hidden = false;
+}
+function closeSetPresentPrompt(){
+  document.getElementById('setPresentModal').hidden = true;
+}
+
+// presentSet:true starts a single continuous run through every presentable
+// song in "This Week's Set" (from the top), rather than just the current
+// song — see buildSetPresentation()/getFocusPositions() for how the whole
+// set becomes one flat, seamlessly-navigable sequence.
+function enterFocusMode(presentSet){
+  state.presentingSet = !!presentSet;
+  if(state.presentingSet){
+    const songs = getPresentableSetSongs();
+    if(!songs.length){ state.presentingSet = false; return; }
+    state.currentId = songs[0].id;
+  }
   state.focusMode = true;
   state.focusPos = 0;
   document.addEventListener('keydown', onFocusKeydown);
-  openPresentWindow(song);
+  openPresentWindow();
   renderAll();
 }
 
 function exitFocusMode(){
   state.focusMode = false;
+  state.presentingSet = false;
   document.removeEventListener('keydown', onFocusKeydown);
   renderAll();
 }
 
 function focusMove(delta){
-  const song = SONGS.find(s=>s.id===state.currentId);
-  if(!song || song.pending) return;
-  const positions = flattenFocusPositions(buildSlideGroups(song));
+  const positions = getFocusPositions().positions;
   if(!positions.length) return;
   state.focusPos = Math.max(0, Math.min(positions.length - 1, state.focusPos + delta));
   renderAll();
 }
 
 // Tells the projector (popup, or the in-tab fallback overlay) to jump to the
-// slide in focus. state.focusPos now indexes the same flattened slide list
-// buildSlides() produces, so no section-to-slide lookup is needed — the
-// chart position IS the slide index.
-function syncPresentToFocus(song){
+// slide in focus. state.focusPos indexes the same flattened slide list
+// getFocusPositions() produces (one song's, or the whole set's), so no
+// section-to-slide lookup is needed — the chart position IS the slide index.
+function syncPresentToFocus(){
   if(!state.focusMode) return;
   if(presentWin && !presentWin.closed){
     try{ presentWin.postMessage({type:'worship-present-goto', index: state.focusPos}, '*'); }catch(e){}
   } else if(!document.getElementById('slidesOverlay').hidden){
-    slideState.slides = buildSlides(song);
+    slideState.slides = getFocusPositions().slides;
     slideState.index = state.focusPos;
     renderSlide();
   }
@@ -2144,6 +3235,22 @@ document.addEventListener('touchend', e=>{
     if(dy < 0) focusMove(1); else focusMove(-1);
   }
 }, {passive:true});
+
+(function initSetPresentModal(){
+  const modal = document.getElementById('setPresentModal');
+  document.getElementById('setPresentWholeSet').addEventListener('click', ()=>{
+    closeSetPresentPrompt();
+    enterFocusMode(true);
+  });
+  document.getElementById('setPresentJustSong').addEventListener('click', ()=>{
+    closeSetPresentPrompt();
+    enterFocusMode(false);
+  });
+  modal.addEventListener('click', e=>{ if(e.target === modal) closeSetPresentPrompt(); });
+  document.addEventListener('keydown', e=>{
+    if(e.key === 'Escape' && !modal.hidden) closeSetPresentPrompt();
+  });
+})();
 
 (function initSlidesOverlay(){
   const overlay = document.getElementById('slidesOverlay');
@@ -2213,6 +3320,7 @@ function applyLayout(){
   });
 }
 
+loadSetFromLocation();
 applyLayout();
 renderAll();
 </script>
