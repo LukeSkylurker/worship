@@ -281,6 +281,17 @@
     display:flex; align-items:center; justify-content:center; cursor:pointer;
   }
   .section-close:hover{background:var(--surface-2); border-color:var(--border); color:#B23B3B;}
+  .section-dup{
+    width:22px; height:22px; border-radius:6px; border:1px solid transparent; flex-shrink:0;
+    background:transparent; color:var(--ink-faint);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  .section-dup svg{width:13px; height:13px;}
+  .section-dup:hover{background:var(--surface-2); border-color:var(--border); color:var(--accent);}
+  .dup-tag{
+    font-family:'IBM Plex Mono', monospace; font-size:.72rem; font-style:italic;
+    color:var(--ink-faint);
+  }
   .repeat-tag{
     font-family:'IBM Plex Mono', monospace; font-size:.72rem; font-style:italic;
     color:var(--ink-faint);
@@ -381,7 +392,7 @@
     }
     body{background:#fff;}
     .app{display:block; max-width:none;}
-    .sidebar, .view-toggle, .section-nav, .pdf-btn, #undoBtn, .section-close, .drag-handle,
+    .sidebar, .view-toggle, .section-nav, .pdf-btn, #undoBtn, .section-close, .section-dup, .drag-handle,
     .key-control .step-btn, .key-control select,
     .key-control label, .reset-link{ display:none !important; }
     .print-only{display:inline-block;}
@@ -492,7 +503,7 @@
     opacity:1; transform:scale(1); cursor:default;
     box-shadow:0 0 0 2px var(--accent), var(--shadow);
   }
-  .focus-mode-grid .drag-handle, .focus-mode-grid .section-close{display:none;}
+  .focus-mode-grid .drag-handle, .focus-mode-grid .section-close, .focus-mode-grid .section-dup{display:none;}
 
   .focus-nav{
     position:fixed; right:26px; bottom:26px; z-index:20;
@@ -2056,6 +2067,58 @@ const SONGS = [
       ]},
     ],
   },
+  {
+    id: 'god-of-revival',
+    code: 'aa',  // permanent short id for URL sharing -- never reassign
+    title: 'God of Revival',
+    artist: 'Bethel Music (Josh Baldwin)',
+    originalKey: 'C',
+    tempo: 75,
+    time: '4/4',
+    sections: [
+      { type:'intro', chordLine:['F','C','Am','G'] },
+      { type:'verse', n:1, lines:[
+        [ {c:'F', l:'We see what you can'}, {c:'C', l:'do'} ],
+        [ {c:'Am', l:'Oh God of wonders'} ],
+        [ {c:'G', l:'Your power has no end'} ],
+        [ {c:'F', l:"The things you've done"}, {c:'C', l:'before'} ],
+        [ {c:'Am', l:'In greater measure'} ],
+        [ {c:'G', l:'You will do again'} ],
+      ]},
+      { type:'prechorus', lines:[
+        [ {c:'F', l:"Cause there's no prison wall"} ],
+        [ {c:'Am', l:"You can't break through, no"} ],
+        [ {c:'C', l:"Mountain You can't move"} ],
+        [ {c:'G', l:'All things are possible'} ],
+        [ {c:'F', l:"There's no broken body you can't"}, {c:'Am', l:'raise, no'} ],
+        [ {c:'C', l:"Soul that You can't save"} ],
+        [ {c:'G', l:'All things are possible'} ],
+      ]},
+      { type:'chorus', lines:[
+        [ {c:'F', l:'The darkest night, You can'}, {c:'G', l:'light it'}, {c:'Am', l:'up'} ],
+        [ {c:'C', l:'You can light it up,'}, {c:'G', l:'God of revival'} ],
+        [ {c:'F', l:'Let hope arise, death is'}, {c:'G', l:'over-'}, {c:'Am', l:'come'} ],
+        [ {c:'C', l:"You've already won,"}, {c:'G', l:'God of revival'} ],
+      ]},
+      { type:'verse', n:2, lines:[
+        [ {c:'F', l:'You rose in'}, {c:'C', l:'victory and'} ],
+        [ {c:'Am', l:"Now You're seated"} ],
+        [ {c:'G', l:'Forever on the throne'} ],
+        [ {c:'F', l:'So why should my heart'}, {c:'Am', l:"fear What You've defeated"} ],
+        [ {c:'G', l:'I will trust in You alone'} ],
+      ]},
+      { type:'bridge', lines:[
+        [ {c:'C', l:'Come awaken Your people'} ],
+        [ {c:'C', l:'Come awaken Your city'} ],
+        [ {c:'Am', l:'Oh God of revival'}, {c:'G', l:'pour it out'} ],
+        [ {c:'G', l:'Pour it out'} ],
+        [ {c:'C', l:'Every stronghold will crumble'} ],
+        [ {c:'C', l:'I hear the chains hit the ground'} ],
+        [ {c:'Am', l:'Oh God of revival'}, {c:'G', l:'pour it out'} ],
+        [ {c:'G', l:'Pour it out'} ],
+      ]},
+    ],
+  },
 ];
 
 /* ======================= MUSIC THEORY ======================= */
@@ -2090,12 +2153,30 @@ function stepsBetween(fromKey, toKey){
 
 /* ======================= RENDER ======================= */
 
-const state = { currentId: SONGS[0].id, keyBySong: {}, viewMode: 'full', removedBySong: {}, orderBySong: {}, layout: '1col', focusMode: false, focusPos: 0, setList: [], sharedView: false, hideAllSongs: false, presentingSet: false };
+const state = { currentId: SONGS[0].id, keyBySong: {}, viewMode: 'full', removedBySong: {}, orderBySong: {}, dupOriginBySong: {}, layout: '1col', focusMode: false, focusPos: 0, setList: [], sharedView: false, hideAllSongs: false, presentingSet: false };
 let dragSourceIdx = null;
 
+// The "order" array lists *slot ids* to render, in sequence — not
+// necessarily one per section. A slot id under song.sections.length is a
+// plain reference to that section (the untouched default: identity array
+// 0..N-1). A slot id at or above song.sections.length is a duplicate,
+// created by duplicateSection(), and its real content lives in
+// dupOriginBySong. This is what lets the same section appear more than
+// once in one song's arrangement -- each occurrence is still a distinct,
+// independently orderable/removable slot, while both trace back to the
+// same underlying chords/lyrics.
 function getOrder(song){
   return state.orderBySong[song.id] || (state.orderBySong[song.id] = song.sections.map((_,i)=>i));
 }
+
+// Resolves a slot id (as found in the order array) to the actual index
+// into song.sections whose content should be displayed there.
+function getSectionIdx(song, slotId){
+  if(slotId < song.sections.length) return slotId;
+  const map = state.dupOriginBySong[song.id];
+  return (map && slotId in map) ? map[slotId] : slotId;
+}
+
 function reorderSection(song, sourceIdx, targetIdx, after){
   const order = getOrder(song);
   const from = order.indexOf(sourceIdx);
@@ -2104,6 +2185,24 @@ function reorderSection(song, sourceIdx, targetIdx, after){
   let to = order.indexOf(targetIdx);
   if(to===-1) to = order.length; else if(after) to += 1;
   order.splice(to, 0, sourceIdx);
+  renderAll();
+}
+
+// Inserts a new slot right after the source slot, referencing the same
+// section content. The new slot id is always one past the highest slot id
+// this song has ever used (order never drops a slot on removal -- it just
+// gets hidden via removedBySong -- so Math.max(...order) is always the true
+// high-water mark), which keeps every slot id permanently unique for this
+// song without needing a separate counter.
+function duplicateSection(song, slotId){
+  const order = getOrder(song);
+  const pos = order.indexOf(slotId);
+  if(pos===-1) return;
+  const contentIdx = getSectionIdx(song, slotId);
+  const newSlotId = Math.max(song.sections.length - 1, ...order) + 1;
+  order.splice(pos + 1, 0, newSlotId);
+  const map = state.dupOriginBySong[song.id] || (state.dupOriginBySong[song.id] = {});
+  map[newSlotId] = contentIdx;
   renderAll();
 }
 
@@ -2145,11 +2244,14 @@ function reorderSet(sourceId, targetId, after){
 // True only when a song's section order has actually been customized — an
 // untouched song still picks up an identity-order array the first time it's
 // rendered (getOrder's lazy default), and that default shouldn't bloat the
-// shareable URL.
+// shareable URL. A song with any duplicated section always counts as custom
+// (its order is longer than song.sections.length), same as a reordered one.
 function isCustomOrder(song){
   const order = state.orderBySong[song.id];
-  if(!order || order.length !== song.sections.length) return false;
-  return !order.every((v, i)=> v === i);
+  if(!order) return false;
+  const def = song.sections.map((_,i)=>i);
+  if(order.length !== def.length) return true;
+  return !order.every((v, i)=> v === def[i]);
 }
 
 // A sharp is the only ALL_KEYS character ('#') that isn't safe to reuse as
@@ -2158,9 +2260,14 @@ function keyToToken(key){ return key === 'F#' ? 'Fs' : key; }
 function tokenToKey(token){ return token === 'Fs' ? 'F#' : token; }
 
 // Packs "This Week's Set" — which songs, in what order, plus any per-song
-// key change / removed sections / custom arrangement — into a compact
-// string for the URL fragment. Only songs actually in the set are encoded,
-// and only fields that differ from that song's default.
+// key change / removed sections / custom arrangement / duplicated sections
+// — into a compact string for the URL fragment. Only songs actually in the
+// set are encoded, and only fields that differ from that song's default.
+// A duplicated section needs two things encoded together to round-trip: the
+// slot id's place in the order sequence ('o', already handles that since a
+// duplicate's slot id just appears in the list like any other) and which
+// original section that slot id is a copy of ('d', new below) — without
+// 'd' a decoded duplicate slot id would be meaningless on the other end.
 function encodeSet(){
   const parts = state.setList.map(id=>{
     const song = SONGS.find(s=>s.id===id);
@@ -2171,13 +2278,16 @@ function encodeSet(){
     const removed = state.removedBySong[id];
     if(removed && removed.length) mods.push('r' + removed.join('-'));
     if(isCustomOrder(song)) mods.push('o' + state.orderBySong[id].join('-'));
+    const dupMap = state.dupOriginBySong[id];
+    const dupEntries = dupMap ? Object.keys(dupMap) : [];
+    if(dupEntries.length) mods.push('d' + dupEntries.map(slotId=>`${slotId}.${dupMap[slotId]}`).join('-'));
     return mods.length ? `${song.code}:${mods.join(',')}` : song.code;
   }).filter(Boolean);
   return parts.join(';');
 }
 
 function decodeSet(str){
-  const result = { setList: [], keyBySong: {}, removedBySong: {}, orderBySong: {} };
+  const result = { setList: [], keyBySong: {}, removedBySong: {}, orderBySong: {}, dupOriginBySong: {} };
   if(!str) return result;
   str.split(';').forEach(entry=>{
     if(!entry) return;
@@ -2186,19 +2296,36 @@ function decodeSet(str){
     if(!song) return; // unknown/retired code -- skip rather than break the whole link
     result.setList.push(song.id);
     if(!modsPart) return;
-    modsPart.split(',').forEach(tok=>{
-      if(!tok) return;
+    // Collected first so 'd' (duplicate origins) is always applied before
+    // 'o'/'r', regardless of what order the tokens appear in the string —
+    // both of those need the duplicate-origin map in hand to validate a
+    // slot id that's >= song.sections.length.
+    const tokens = modsPart.split(',').filter(Boolean);
+    const dupTok = tokens.find(t=>t[0]==='d');
+    if(dupTok){
+      const map = {};
+      dupTok.slice(1).split('-').forEach(pair=>{
+        const [slotStr, srcStr] = pair.split('.');
+        const slotId = parseInt(slotStr,10), src = parseInt(srcStr,10);
+        if(!isNaN(slotId) && !isNaN(src) && slotId>=song.sections.length && src>=0 && src<song.sections.length){
+          map[slotId] = src;
+        }
+      });
+      if(Object.keys(map).length) result.dupOriginBySong[song.id] = map;
+    }
+    const dupMap = result.dupOriginBySong[song.id];
+    const isValidSlot = n => n>=0 && (n<song.sections.length || (dupMap && n in dupMap));
+    tokens.forEach(tok=>{
       const kind = tok[0], rest = tok.slice(1);
       if(!rest) return;
       if(kind === 'k'){
         const key = tokenToKey(rest);
         if(ALL_KEYS.includes(key)) result.keyBySong[song.id] = key;
       } else if(kind === 'r'){
-        result.removedBySong[song.id] = rest.split('-').map(n=>parseInt(n,10)).filter(n=>!isNaN(n) && n>=0 && n<song.sections.length);
+        result.removedBySong[song.id] = rest.split('-').map(n=>parseInt(n,10)).filter(n=>!isNaN(n) && isValidSlot(n));
       } else if(kind === 'o'){
         const order = rest.split('-').map(n=>parseInt(n,10));
-        const valid = order.length === song.sections.length && order.every(n=>!isNaN(n)) &&
-          new Set(order).size === order.length && order.every(n=> n>=0 && n<song.sections.length);
+        const valid = order.length >= song.sections.length && order.every(n=>!isNaN(n) && isValidSlot(n));
         if(valid) result.orderBySong[song.id] = order;
       }
     });
@@ -2252,6 +2379,7 @@ function loadSetFromLocation(){
   Object.assign(state.keyBySong, decoded.keyBySong);
   Object.assign(state.removedBySong, decoded.removedBySong);
   Object.assign(state.orderBySong, decoded.orderBySong);
+  Object.assign(state.dupOriginBySong, decoded.dupOriginBySong);
   state.currentId = decoded.setList[0];
   if(parsed.shared){
     state.sharedView = true;
@@ -2286,12 +2414,19 @@ function sectionMeta(section){
 
 function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
 
-// Flags each section that has identical content (lyrics + chords, ignoring
-// production notes) to an earlier section, so minimal view can collapse it
-// to a one-line "repeat" reference instead of reprinting it.
-function computeRepeats(sections){
+// Flags each *visible, in-arrangement-order* slot that has identical content
+// (lyrics + chords, ignoring production notes) to an earlier slot, so
+// minimal view can collapse it to a one-line "repeat" reference instead of
+// reprinting it. Walking the current display order (rather than song.sections'
+// raw authoring order) means this naturally catches a user-duplicated
+// section too -- a duplicate slot always matches its source's signature --
+// and always labels the "repeat of ___" against whichever occurrence is
+// actually shown first on screen right now, matching any custom order.
+// Returns an array parallel to slotIds (not indexed by content idx).
+function computeRepeats(song, slotIds){
   const seen = [];
-  return sections.map((sec, idx)=>{
+  return slotIds.map(slotId=>{
+    const sec = song.sections[getSectionIdx(song, slotId)];
     const sig = JSON.stringify({
       type: sec.type, n: sec.n || null,
       lines: sec.lines || null,
@@ -2468,11 +2603,14 @@ function renderChunk(chunk, steps, useFlats){
   return `<span class="chunk"><span class="chord">${esc(chord)}</span><span class="lyric">${esc(chunk.l) || '&nbsp;'}</span></span>`;
 }
 
-function renderSection(section, idx, steps, useFlats, repeatInfo, focused){
+const DUP_ICON = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3.5" y="6" width="10" height="10.5" rx="1.2"/><path d="M6.5 6V4.5a1 1 0 0 1 1-1H16a1 1 0 0 1 1 1V13a1 1 0 0 1-1 1h-1.5"/></svg>`;
+
+function renderSection(section, idx, steps, useFlats, repeatInfo, focused, isDupSlot){
   const meta = sectionMeta(section);
   const anchorId = `sec-${idx}`;
   const chordOnly = !section.lines && (section.chordLine || section.chordLine2) ? ' chord-only' : '';
   const focusedCls = focused ? ' focused' : '';
+  const dupTag = isDupSlot ? `<span class="dup-tag">duplicated</span>` : '';
 
   const handle = `<span class="drag-handle" draggable="true" data-idx="${idx}" title="Drag to reorder">
     <svg viewBox="0 0 10 16" fill="currentColor"><circle cx="2.5" cy="2" r="1.4"/><circle cx="7.5" cy="2" r="1.4"/><circle cx="2.5" cy="8" r="1.4"/><circle cx="7.5" cy="8" r="1.4"/><circle cx="2.5" cy="14" r="1.4"/><circle cx="7.5" cy="14" r="1.4"/></svg>
@@ -2487,6 +2625,8 @@ function renderSection(section, idx, steps, useFlats, repeatInfo, focused){
         <span class="repeat-tag">repeat &middot; same as ${esc(repeatInfo.ofLabel)}</span>
         <span class="head-right">
           ${section.note ? `<span class="section-note">${esc(section.note)}</span>` : ''}
+          ${dupTag}
+          <button class="section-dup" data-idx="${idx}" title="Duplicate this section">${DUP_ICON}</button>
           <button class="section-close" data-idx="${idx}" title="Remove this section">&times;</button>
         </span>
       </div>
@@ -2510,6 +2650,8 @@ function renderSection(section, idx, steps, useFlats, repeatInfo, focused){
       <span class="section-label">${meta.label}</span>
       <span class="head-right">
         ${section.note ? `<span class="section-note">${esc(section.note)}</span>` : ''}
+        ${dupTag}
+        <button class="section-dup" data-idx="${idx}" title="Duplicate this section">${DUP_ICON}</button>
         <button class="section-close" data-idx="${idx}" title="Remove this section">&times;</button>
       </span>
     </div>
@@ -2547,14 +2689,14 @@ function renderMain(){
   const steps = stepsBetween(originalKey, currentKey);
   const useFlats = FLAT_KEYS.has(currentKey);
 
-  const repeats = computeRepeats(song.sections);
   const removedStack = state.removedBySong[song.id] || [];
   const order = getOrder(song);
   const visibleIdx = order.filter(i=>!removedStack.includes(i));
+  const repeats = computeRepeats(song, visibleIdx);
 
   const keyOptions = ALL_KEYS.map(k=>`<option value="${k}" ${k===currentKey?'selected':''}>${k}</option>`).join('');
   const nav = visibleIdx.map(idx=>{
-    const sec = song.sections[idx];
+    const sec = song.sections[getSectionIdx(song, idx)];
     const meta = sectionMeta(sec);
     const chordOnly = !sec.lines && (sec.chordLine || sec.chordLine2) ? ' chord-only' : '';
     return `<span class="nav-pill${chordOnly}" style="--pill-color:${meta.color}" data-target="sec-${idx}">
@@ -2600,12 +2742,15 @@ function renderMain(){
     </div>
     <div class="section-nav${state.viewMode==='lyrics' ? ' hide-chords' : ''}">${nav}</div>
     <div class="chart-grid${state.viewMode==='lyrics' ? ' hide-chords' : ''}">
-      ${visibleIdx.map(idx=>renderSection(song.sections[idx], idx, steps, useFlats, state.viewMode==='minimal' ? repeats[idx] : null)).join('')}
+      ${visibleIdx.map((idx, j)=>renderSection(song.sections[getSectionIdx(song, idx)], idx, steps, useFlats, state.viewMode==='minimal' ? repeats[j] : null, idx >= song.sections.length)).join('')}
     </div>
   `;
 
   main.querySelectorAll('.toggle-btn').forEach(btn=>{
     btn.addEventListener('click', ()=>{ state.viewMode = btn.dataset.mode; renderAll(); });
+  });
+  main.querySelectorAll('.section-dup').forEach(btn=>{
+    btn.addEventListener('click', ()=> duplicateSection(song, parseInt(btn.dataset.idx, 10)));
   });
   main.querySelectorAll('.section-close').forEach(btn=>{
     btn.addEventListener('click', ()=> removeSection(song.id, parseInt(btn.dataset.idx, 10)));
@@ -2772,9 +2917,13 @@ function renderFocusView(){
     }
 
     const section = song.sections[pos.sectionIdx];
+    // pos.slotId (not pos.sectionIdx) is the id passed through for the card's
+    // DOM anchor -- a duplicated section shares its sectionIdx (content) with
+    // its source but has its own distinct slotId, so the two occurrences
+    // don't collide on the same "sec-N" element id here.
     const card = pos.range === null
-      ? renderSection(section, pos.sectionIdx, steps, useFlats, null, focused)
-      : renderFocusPartialCard(section, pos.sectionIdx, steps, useFlats, pos, focused);
+      ? renderSection(section, pos.slotId, steps, useFlats, null, focused)
+      : renderFocusPartialCard(section, pos.slotId, steps, useFlats, pos, focused);
     return divider + card;
   }).join('');
 
@@ -2879,19 +3028,27 @@ function computeSplitRanges(total, maxPerSlide){
 // way every slide traces back to exactly one group. That 1:1 mapping (via
 // flattenFocusPositions) is what lets chart-focus navigation and the
 // projector step through the same sequence in lockstep.
+// Walks the same visible-slot sequence renderMain uses (custom order,
+// removed sections, and any duplicated sections all applied), so a
+// duplicated section shows up as its own real slide(s) here too — a
+// duplicate slot resolves through getSectionIdx to the same content as its
+// source, but keeps its own distinct slotId so its slide(s) and focus-mode
+// card are their own independently-navigable entry, not a rerun of the
+// source's.
 function buildSlideGroups(song){
   const removedStack = state.removedBySong[song.id] || [];
   const order = getOrder(song);
   const visible = order.filter(i => !removedStack.includes(i));
   const groups = [];
   let cursor = 0;
-  visible.forEach(idx=>{
+  visible.forEach(slotId=>{
+    const idx = getSectionIdx(song, slotId);
     const sec = song.sections[idx];
     const label = sectionMeta(sec).label;
     const totalLines = sec.lines ? sec.lines.length : 0;
 
     if(!totalLines){
-      groups.push({ sectionIdx: idx, label, startIndex: cursor, count: 1, ranges: null, slides: [{ label, lines: [] }] });
+      groups.push({ sectionIdx: idx, slotId, label, startIndex: cursor, count: 1, ranges: null, slides: [{ label, lines: [] }] });
       cursor += 1;
       return;
     }
@@ -2902,7 +3059,7 @@ function buildSlideGroups(song){
       const partLabel = ranges.length > 1 ? `${label} (${i+1}/${ranges.length})` : label;
       return { label: partLabel, lines: textLines };
     });
-    groups.push({ sectionIdx: idx, label, startIndex: cursor, count: slides.length, ranges, slides });
+    groups.push({ sectionIdx: idx, slotId, label, startIndex: cursor, count: slides.length, ranges, slides });
     cursor += slides.length;
   });
   return groups;
@@ -2919,10 +3076,10 @@ function flattenFocusPositions(groups){
   const positions = [];
   groups.forEach(g=>{
     if(!g.ranges){
-      positions.push({ sectionIdx: g.sectionIdx, label: g.label, range: null, part: 1, parts: 1 });
+      positions.push({ sectionIdx: g.sectionIdx, slotId: g.slotId, label: g.label, range: null, part: 1, parts: 1 });
     } else {
       g.ranges.forEach((range, i)=>{
-        positions.push({ sectionIdx: g.sectionIdx, label: g.label, range, part: i + 1, parts: g.ranges.length });
+        positions.push({ sectionIdx: g.sectionIdx, slotId: g.slotId, label: g.label, range, part: i + 1, parts: g.ranges.length });
       });
     }
   });
