@@ -418,7 +418,15 @@
     .main{padding:0; overflow:visible;}
     .chart-header{margin-bottom:14px;}
     .key-control{border:none; box-shadow:none; padding:0; background:transparent;}
-    .chart-grid{columns:1; column-count:1;}
+    /* Match whatever column count the chart is showing on screen. 1-col mode
+       is already forced to a single column by .app.layout-1col .chart-grid
+       (an un-scoped !important rule, so it applies here too) -- this only
+       needs to handle the 2-col case. column-width has to be overridden to
+       auto, not just column-count set to 2: the on-screen rule's 400px
+       minimum is still in effect otherwise, and a printed page's content
+       area (well under 2*400px) would fail that minimum and collapse back
+       down to a single column despite column-count saying 2. */
+    .app:not(.layout-1col) .chart-grid{column-count:2 !important; column-width:auto !important; column-gap:16px;}
     .section-card{box-shadow:none; break-inside:avoid; page-break-inside:avoid;}
     .slides-overlay, .present-bar, .focus-bar, .focus-nav{display:none !important;}
     .focus-mode-grid .section-card{opacity:1 !important; transform:none !important; box-shadow:none !important;}
