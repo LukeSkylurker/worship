@@ -292,6 +292,25 @@
     font-family:'IBM Plex Mono', monospace; font-size:.72rem; font-style:italic;
     color:var(--ink-faint);
   }
+  .section-trunc{
+    width:22px; height:22px; border-radius:6px; border:1px solid transparent; flex-shrink:0;
+    background:transparent; color:var(--ink-faint);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  .section-trunc svg{width:13px; height:13px;}
+  .section-trunc:hover{background:var(--surface-2); border-color:var(--border); color:var(--accent);}
+  .section-trunc.active{color:var(--accent);}
+  .trunc-tag{
+    font-family:'IBM Plex Mono', monospace; font-size:.72rem; font-style:italic;
+    color:var(--ink-faint);
+  }
+  .truncate-note{
+    margin-top:6px; font-size:.78rem; font-style:italic; color:var(--ink-faint);
+  }
+  .section-trunc-inline{
+    background:none; border:none; padding:0; margin:0; cursor:pointer;
+    font:inherit; font-style:normal; text-decoration:underline; color:var(--accent);
+  }
   .repeat-tag{
     font-family:'IBM Plex Mono', monospace; font-size:.72rem; font-style:italic;
     color:var(--ink-faint);
@@ -392,7 +411,7 @@
     }
     body{background:#fff;}
     .app{display:block; max-width:none;}
-    .sidebar, .view-toggle, .section-nav, .pdf-btn, #undoBtn, .section-close, .section-dup, .drag-handle,
+    .sidebar, .view-toggle, .section-nav, .pdf-btn, #undoBtn, .section-close, .section-dup, .section-trunc, .section-trunc-inline, .drag-handle,
     .key-control .step-btn, .key-control select,
     .key-control label, .reset-link{ display:none !important; }
     .print-only{display:inline-block;}
@@ -503,7 +522,7 @@
     opacity:1; transform:scale(1); cursor:default;
     box-shadow:0 0 0 2px var(--accent), var(--shadow);
   }
-  .focus-mode-grid .drag-handle, .focus-mode-grid .section-close, .focus-mode-grid .section-dup{display:none;}
+  .focus-mode-grid .drag-handle, .focus-mode-grid .section-close, .focus-mode-grid .section-dup, .focus-mode-grid .section-trunc, .focus-mode-grid .section-trunc-inline{display:none;}
 
   .focus-nav{
     position:fixed; right:26px; bottom:26px; z-index:20;
@@ -2153,7 +2172,7 @@ function stepsBetween(fromKey, toKey){
 
 /* ======================= RENDER ======================= */
 
-const state = { currentId: SONGS[0].id, keyBySong: {}, viewMode: 'full', removedBySong: {}, orderBySong: {}, dupOriginBySong: {}, layout: '1col', focusMode: false, focusPos: 0, setList: [], sharedView: false, hideAllSongs: false, presentingSet: false };
+const state = { currentId: SONGS[0].id, keyBySong: {}, viewMode: 'full', removedBySong: {}, orderBySong: {}, dupOriginBySong: {}, truncatedBySong: {}, layout: '1col', focusMode: false, focusPos: 0, setList: [], sharedView: false, hideAllSongs: false, presentingSet: false };
 let dragSourceIdx = null;
 
 // The "order" array lists *slot ids* to render, in sequence — not
@@ -2216,6 +2235,25 @@ function undoRemove(songId){
   if(stack && stack.length){ stack.pop(); renderAll(); }
 }
 
+// Truncating a section only shortens what the CHART shows -- it's a purely
+// cosmetic/print-view toggle, unlike removedBySong (which also drops the
+// section from the presentation). Deliberately not consulted anywhere in
+// buildSlideGroups/getFocusPositions, so Present mode and the projector
+// always show every line regardless of what's collapsed on the chart. A
+// simple on/off toggle (not a stack like removedBySong) since the whole
+// point is bringing back *this* section on demand, not just the last one
+// truncated.
+function isTruncated(songId, slotId){
+  const arr = state.truncatedBySong[songId];
+  return !!(arr && arr.includes(slotId));
+}
+function toggleTruncate(songId, slotId){
+  const arr = state.truncatedBySong[songId] || (state.truncatedBySong[songId] = []);
+  const i = arr.indexOf(slotId);
+  if(i === -1) arr.push(slotId); else arr.splice(i, 1);
+  renderAll();
+}
+
 /* ======================= THIS WEEK'S SET ======================= */
 
 function addToSet(songId){
@@ -2261,8 +2299,9 @@ function tokenToKey(token){ return token === 'Fs' ? 'F#' : token; }
 
 // Packs "This Week's Set" — which songs, in what order, plus any per-song
 // key change / removed sections / custom arrangement / duplicated sections
-// — into a compact string for the URL fragment. Only songs actually in the
-// set are encoded, and only fields that differ from that song's default.
+// / truncated sections — into a compact string for the URL fragment. Only
+// songs actually in the set are encoded, and only fields that differ from
+// that song's default.
 // A duplicated section needs two things encoded together to round-trip: the
 // slot id's place in the order sequence ('o', already handles that since a
 // duplicate's slot id just appears in the list like any other) and which
@@ -2281,13 +2320,15 @@ function encodeSet(){
     const dupMap = state.dupOriginBySong[id];
     const dupEntries = dupMap ? Object.keys(dupMap) : [];
     if(dupEntries.length) mods.push('d' + dupEntries.map(slotId=>`${slotId}.${dupMap[slotId]}`).join('-'));
+    const truncated = state.truncatedBySong[id];
+    if(truncated && truncated.length) mods.push('t' + truncated.join('-'));
     return mods.length ? `${song.code}:${mods.join(',')}` : song.code;
   }).filter(Boolean);
   return parts.join(';');
 }
 
 function decodeSet(str){
-  const result = { setList: [], keyBySong: {}, removedBySong: {}, orderBySong: {}, dupOriginBySong: {} };
+  const result = { setList: [], keyBySong: {}, removedBySong: {}, orderBySong: {}, dupOriginBySong: {}, truncatedBySong: {} };
   if(!str) return result;
   str.split(';').forEach(entry=>{
     if(!entry) return;
@@ -2297,9 +2338,9 @@ function decodeSet(str){
     result.setList.push(song.id);
     if(!modsPart) return;
     // Collected first so 'd' (duplicate origins) is always applied before
-    // 'o'/'r', regardless of what order the tokens appear in the string —
-    // both of those need the duplicate-origin map in hand to validate a
-    // slot id that's >= song.sections.length.
+    // 'o'/'r'/'t', regardless of what order the tokens appear in the string —
+    // all three need the duplicate-origin map in hand to validate a slot id
+    // that's >= song.sections.length.
     const tokens = modsPart.split(',').filter(Boolean);
     const dupTok = tokens.find(t=>t[0]==='d');
     if(dupTok){
@@ -2327,6 +2368,8 @@ function decodeSet(str){
         const order = rest.split('-').map(n=>parseInt(n,10));
         const valid = order.length >= song.sections.length && order.every(n=>!isNaN(n) && isValidSlot(n));
         if(valid) result.orderBySong[song.id] = order;
+      } else if(kind === 't'){
+        result.truncatedBySong[song.id] = rest.split('-').map(n=>parseInt(n,10)).filter(n=>!isNaN(n) && isValidSlot(n));
       }
     });
   });
@@ -2380,6 +2423,7 @@ function loadSetFromLocation(){
   Object.assign(state.removedBySong, decoded.removedBySong);
   Object.assign(state.orderBySong, decoded.orderBySong);
   Object.assign(state.dupOriginBySong, decoded.dupOriginBySong);
+  Object.assign(state.truncatedBySong, decoded.truncatedBySong);
   state.currentId = decoded.setList[0];
   if(parsed.shared){
     state.sharedView = true;
@@ -2604,13 +2648,31 @@ function renderChunk(chunk, steps, useFlats){
 }
 
 const DUP_ICON = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3.5" y="6" width="10" height="10.5" rx="1.2"/><path d="M6.5 6V4.5a1 1 0 0 1 1-1H16a1 1 0 0 1 1 1V13a1 1 0 0 1-1 1h-1.5"/></svg>`;
+// Collapse (truncate) / expand (restore) glyphs -- a simple chevron pair so
+// the one button's icon (and title) flips to show which action it'll do.
+const TRUNC_ICON  = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 7.5 10 12.5 15 7.5"/></svg>`;
+const EXPAND_ICON = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12.5 10 7.5 15 12.5"/></svg>`;
 
-function renderSection(section, idx, steps, useFlats, repeatInfo, focused, isDupSlot){
+// Truncating a section only ever hides *lyric lines* on the CHART -- the
+// chords stay visible, and the section itself stays fully in the
+// arrangement (present in the order, still counted for repeats, still
+// built into the presentation in full -- see the note on isTruncated).
+// Showing just the first line keeps a card recognizable at a glance, which
+// is the point: it's a "collapse a part you've already memorized" control,
+// not a delete.
+const TRUNCATE_KEEP_LINES = 1;
+
+function renderSection(section, idx, steps, useFlats, repeatInfo, focused, isDupSlot, isTrunc){
   const meta = sectionMeta(section);
   const anchorId = `sec-${idx}`;
   const chordOnly = !section.lines && (section.chordLine || section.chordLine2) ? ' chord-only' : '';
   const focusedCls = focused ? ' focused' : '';
   const dupTag = isDupSlot ? `<span class="dup-tag">duplicated</span>` : '';
+  const canTruncate = !!(section.lines && section.lines.length > TRUNCATE_KEEP_LINES);
+  const truncTag = (isTrunc && canTruncate) ? `<span class="trunc-tag">truncated</span>` : '';
+  const truncBtn = canTruncate
+    ? `<button class="section-trunc${isTrunc?' active':''}" data-idx="${idx}" title="${isTrunc ? 'Show the full section' : 'Truncate this section'}">${isTrunc ? EXPAND_ICON : TRUNC_ICON}</button>`
+    : '';
 
   const handle = `<span class="drag-handle" draggable="true" data-idx="${idx}" title="Drag to reorder">
     <svg viewBox="0 0 10 16" fill="currentColor"><circle cx="2.5" cy="2" r="1.4"/><circle cx="7.5" cy="2" r="1.4"/><circle cx="2.5" cy="8" r="1.4"/><circle cx="7.5" cy="8" r="1.4"/><circle cx="2.5" cy="14" r="1.4"/><circle cx="7.5" cy="14" r="1.4"/></svg>
@@ -2641,7 +2703,13 @@ function renderSection(section, idx, steps, useFlats, repeatInfo, focused, isDup
     body += `<div class="chord-line" style="margin-top:8px;">${section.chordLine2.map(c=>`<span class="chord-pill">${esc(transposeLabel(c, steps, useFlats))}</span>`).join('')}</div>`;
   }
   if(section.lines){
-    body += section.lines.map(line=>`<div class="lyric-line">${line.map(ch=>renderChunk(ch, steps, useFlats)).join('')}</div>`).join('');
+    const doTrunc = isTrunc && canTruncate;
+    const linesToShow = doTrunc ? section.lines.slice(0, TRUNCATE_KEEP_LINES) : section.lines;
+    body += linesToShow.map(line=>`<div class="lyric-line">${line.map(ch=>renderChunk(ch, steps, useFlats)).join('')}</div>`).join('');
+    if(doTrunc){
+      const hidden = section.lines.length - TRUNCATE_KEEP_LINES;
+      body += `<div class="truncate-note">&hellip; ${hidden} more line${hidden===1?'':'s'} hidden &middot; <button class="section-trunc-inline" data-idx="${idx}">Show full section</button></div>`;
+    }
   }
   return `<div class="section-card${chordOnly}${focusedCls}" id="${anchorId}" data-idx="${idx}" style="--badge-color:${meta.color}">
     <div class="section-card-head">
@@ -2650,7 +2718,9 @@ function renderSection(section, idx, steps, useFlats, repeatInfo, focused, isDup
       <span class="section-label">${meta.label}</span>
       <span class="head-right">
         ${section.note ? `<span class="section-note">${esc(section.note)}</span>` : ''}
+        ${truncTag}
         ${dupTag}
+        ${truncBtn}
         <button class="section-dup" data-idx="${idx}" title="Duplicate this section">${DUP_ICON}</button>
         <button class="section-close" data-idx="${idx}" title="Remove this section">&times;</button>
       </span>
@@ -2742,7 +2812,7 @@ function renderMain(){
     </div>
     <div class="section-nav${state.viewMode==='lyrics' ? ' hide-chords' : ''}">${nav}</div>
     <div class="chart-grid${state.viewMode==='lyrics' ? ' hide-chords' : ''}">
-      ${visibleIdx.map((idx, j)=>renderSection(song.sections[getSectionIdx(song, idx)], idx, steps, useFlats, state.viewMode==='minimal' ? repeats[j] : null, idx >= song.sections.length)).join('')}
+      ${visibleIdx.map((idx, j)=>renderSection(song.sections[getSectionIdx(song, idx)], idx, steps, useFlats, state.viewMode==='minimal' ? repeats[j] : null, false, idx >= song.sections.length, isTruncated(song.id, idx))).join('')}
     </div>
   `;
 
@@ -2754,6 +2824,9 @@ function renderMain(){
   });
   main.querySelectorAll('.section-close').forEach(btn=>{
     btn.addEventListener('click', ()=> removeSection(song.id, parseInt(btn.dataset.idx, 10)));
+  });
+  main.querySelectorAll('.section-trunc, .section-trunc-inline').forEach(btn=>{
+    btn.addEventListener('click', ()=> toggleTruncate(song.id, parseInt(btn.dataset.idx, 10)));
   });
 
   main.querySelectorAll('.drag-handle').forEach(handle=>{
