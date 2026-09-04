@@ -24,6 +24,7 @@
     --sec-tag:#3F7D74;
     --sec-outro:#6B6F76;
     --shadow: 0 1px 2px rgba(30,25,15,.07), 0 6px 18px rgba(30,25,15,.06);
+    --chord-scale: 1;
     color-scheme: light dark;
   }
   @media (prefers-color-scheme: dark){
@@ -218,7 +219,8 @@
     background:var(--surface-2); color:var(--ink); font-size:.95rem; line-height:1; cursor:pointer;
     display:flex; align-items:center; justify-content:center;
   }
-  .step-btn:hover{border-color:var(--accent); color:var(--accent-strong);}
+  .step-btn:hover:not(:disabled){border-color:var(--accent); color:var(--accent-strong);}
+  .step-btn:disabled{opacity:.35; cursor:default;}
   .reset-link{
     font-family:'IBM Plex Mono', monospace; font-size:.68rem; color:var(--accent-strong);
     background:none; border:none; cursor:pointer; text-decoration:underline; padding:0 2px;
@@ -324,7 +326,7 @@
 
   .chord-line{display:flex; flex-wrap:wrap; gap:8px;}
   .chord-pill{
-    font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:.8rem; color:var(--chord);
+    font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:calc(.8rem * var(--chord-scale, 1)); color:var(--chord);
     background:var(--surface-2); border:1px solid var(--border-soft); border-radius:6px; padding:3px 8px;
   }
 
@@ -333,7 +335,7 @@
   .chunk{display:flex; flex-direction:column; gap:3px; margin-right:16px;}
   .chunk:last-child{margin-right:0;}
   .chunk .chord{
-    font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:.95rem;
+    font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:calc(.95rem * var(--chord-scale, 1));
     color:var(--chord); line-height:1; min-height:1em; white-space:nowrap;
   }
   .chunk .lyric{font-size:1rem; color:var(--ink); line-height:1.3; white-space:pre;}
@@ -377,9 +379,9 @@
   .app.layout-1col .chart-grid{column-count:1 !important; column-width:auto !important; max-width:720px;}
   /* Single-column is the mobile-friendly mode — size chords/lyrics up so
      they're easy to read at arm's length on a phone. */
-  .app.layout-1col .chord-pill{font-size:1rem; padding:4px 10px;}
+  .app.layout-1col .chord-pill{font-size:calc(1rem * var(--chord-scale, 1)); padding:4px 10px;}
   .app.layout-1col .chunk{gap:5px; margin-right:20px;}
-  .app.layout-1col .chunk .chord{font-size:1.3rem;}
+  .app.layout-1col .chunk .chord{font-size:calc(1.3rem * var(--chord-scale, 1));}
   .app.layout-1col .chunk .lyric{font-size:1.35rem; line-height:1.35;}
   .app.layout-1col .chord-line{gap:10px;}
   .app.layout-1col .lyric-line{row-gap:10px; margin-bottom:16px;}
@@ -411,7 +413,7 @@
     }
     body{background:#fff;}
     .app{display:block; max-width:none;}
-    .sidebar, .view-toggle, .section-nav, .pdf-btn, #undoBtn, .section-close, .section-dup, .section-trunc, .section-trunc-inline, .drag-handle,
+    .sidebar, .view-toggle, .section-nav, .pdf-btn, #undoBtn, .section-close, .section-dup, .section-trunc, .section-trunc-inline, .drag-handle, .chord-size-control,
     .key-control .step-btn, .key-control select,
     .key-control label, .reset-link{ display:none !important; }
     .print-only{display:inline-block;}
@@ -515,9 +517,9 @@
      Selectors are chained with .chart-grid (always present alongside
      .focus-mode-grid) purely to out-specificity the .app.layout-1col text
      rules above, which would otherwise win the cascade tie and mask these. */
-  .focus-mode-grid.chart-grid .chord-pill{font-size:1.05rem; padding:4px 10px;}
+  .focus-mode-grid.chart-grid .chord-pill{font-size:calc(1.05rem * var(--chord-scale, 1)); padding:4px 10px;}
   .focus-mode-grid.chart-grid .chunk{gap:5px; margin-right:22px;}
-  .focus-mode-grid.chart-grid .chunk .chord{font-size:1.4rem;}
+  .focus-mode-grid.chart-grid .chunk .chord{font-size:calc(1.4rem * var(--chord-scale, 1));}
   .focus-mode-grid.chart-grid .chunk .lyric{font-size:1.45rem; line-height:1.35;}
   .focus-mode-grid.chart-grid .chord-line{gap:11px;}
   .focus-mode-grid.chart-grid .lyric-line{row-gap:11px; margin-bottom:18px;}
@@ -2180,7 +2182,13 @@ function stepsBetween(fromKey, toKey){
 
 /* ======================= RENDER ======================= */
 
-const state = { currentId: SONGS[0].id, keyBySong: {}, viewMode: 'full', removedBySong: {}, orderBySong: {}, dupOriginBySong: {}, truncatedBySong: {}, layout: '1col', focusMode: false, focusPos: 0, setList: [], sharedView: false, hideAllSongs: false, presentingSet: false };
+const state = { currentId: SONGS[0].id, keyBySong: {}, viewMode: 'full', removedBySong: {}, orderBySong: {}, dupOriginBySong: {}, truncatedBySong: {}, layout: '1col', chordScale: 1, focusMode: false, focusPos: 0, setList: [], sharedView: false, hideAllSongs: false, presentingSet: false };
+
+// Chord text size is a personal display preference (like the 1col/2col
+// layout toggle), not part of a song's arrangement -- so it lives here as
+// plain session state, not in keyBySong/etc, and never gets packed into the
+// shareable set URL.
+const CHORD_SCALE_MIN = 0.8, CHORD_SCALE_MAX = 1.8, CHORD_SCALE_STEP = 0.1;
 let dragSourceIdx = null;
 
 // The "order" array lists *slot ids* to render, in sequence — not
@@ -2808,6 +2816,12 @@ function renderMain(){
           <button class="step-btn" id="keyUp">&plus;</button>
           ${currentKey!==originalKey ? `<button class="reset-link" id="keyReset">reset to ${originalKey}</button>` : ''}
         </div>
+        <div class="key-control chord-size-control">
+          <label>Chord Size</label>
+          <button class="step-btn" id="chordSizeDown" title="Shrink the chords" ${state.chordScale<=CHORD_SCALE_MIN ? 'disabled' : ''}>&minus;</button>
+          <button class="step-btn" id="chordSizeUp" title="Enlarge the chords" ${state.chordScale>=CHORD_SCALE_MAX ? 'disabled' : ''}>&plus;</button>
+          ${state.chordScale!==1 ? `<button class="reset-link" id="chordSizeReset">reset</button>` : ''}
+        </div>
         <button class="pdf-btn" id="pdfBtn" title="Save just this chart as a PDF">
           <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 2.5h7l3 3v12a.5.5 0 0 1-.5.5h-9.5a.5.5 0 0 1-.5-.5v-14a.5.5 0 0 1 .5-.5Z"/><path d="M12 2.5V6h3"/><path d="M7 14h6M7 11h6"/></svg>
           Save as PDF
@@ -2902,6 +2916,18 @@ function renderMain(){
   const resetBtn = document.getElementById('keyReset');
   if(resetBtn) resetBtn.addEventListener('click', ()=>{
     delete state.keyBySong[song.id]; renderAll();
+  });
+  document.getElementById('chordSizeUp').addEventListener('click', ()=>{
+    state.chordScale = Math.min(CHORD_SCALE_MAX, +(state.chordScale + CHORD_SCALE_STEP).toFixed(2));
+    applyChordScale(); renderAll();
+  });
+  document.getElementById('chordSizeDown').addEventListener('click', ()=>{
+    state.chordScale = Math.max(CHORD_SCALE_MIN, +(state.chordScale - CHORD_SCALE_STEP).toFixed(2));
+    applyChordScale(); renderAll();
+  });
+  const chordSizeResetBtn = document.getElementById('chordSizeReset');
+  if(chordSizeResetBtn) chordSizeResetBtn.addEventListener('click', ()=>{
+    state.chordScale = 1; applyChordScale(); renderAll();
   });
   main.querySelectorAll('.nav-pill').forEach(el=>{
     el.addEventListener('click', ()=>{
@@ -3558,7 +3584,17 @@ function applyLayout(){
   });
 }
 
+// Pushes the current chord-size preference out as a CSS custom property on
+// .app, so every chord-size rule (chart view, 1col, focus/present mode,
+// print) picks it up through the calc(...* var(--chord-scale,1)) rules
+// above without each needing its own JS-driven size logic.
+function applyChordScale(){
+  const app = document.querySelector('.app');
+  if(app) app.style.setProperty('--chord-scale', state.chordScale);
+}
+
 loadSetFromLocation();
 applyLayout();
+applyChordScale();
 renderAll();
 </script>
