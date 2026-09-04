@@ -882,12 +882,62 @@ const R_HS_CHORUS_LINES = [
   [ {c:'C', l:'To be overcome by Your'}, {c:'Am', l:'Presence Lord'} ],
 ];
 
+const R_DEMONS_PRECHORUS_TAIL = [
+  {c:'Bm', l:'And'}, {c:'A', l:'as I'}, {c:'G', l:'prayed,'}, {c:'G', l:'I heard'}, {c:'F#m', l:'my Father'}, {c:'A', l:'say'},
+];
+const R_DEMONS_PRECHORUS_LINES = [
+  [ {c:'Bm', l:'You heard my heart,'}, {c:'D', l:'You heard my cry'} ],
+  [ {c:'A', l:'You even heard my whisper in the night'} ],
+  R_DEMONS_PRECHORUS_TAIL,
+];
+const R_DEMONS_DARKNESS_LINE = [ {c:'Bm', l:'Darkness has to leave up in this'}, {c:'A', l:'light, oh-oh'} ];
+const R_DEMONS_CHORUS_LINES = [
+  [ {c:'G', l:'Tell those demons, "Run and hide"'} ],
+  [ {c:'Bm', l:'They tremble at the name of Jesus every time'} ],
+  [ {c:'A', l:"Fear ain't got a home here up"}, {c:'G', l:'inside my mind'} ],
+  R_DEMONS_DARKNESS_LINE,
+];
+const R_DEMONS_POSTCHORUS_LINES = [
+  [ {c:'G', l:"And I won't buy those lies"} ],
+  [ {c:'Bm', l:"They can't take control over this life of mine"} ],
+  [ {c:'A', l:"I'll be for ransom by the"}, {c:'G', l:'blood of Christ'} ],
+  R_DEMONS_DARKNESS_LINE,
+];
+const R_DEMONS_OOH_LINE = [ {c:'G', l:'Ooh-ooh-ooh, ooh-ooh-ooh'} ];
+const R_DEMONS_OOH_BMA_LINE = [ {c:'Bm', l:'Ooh-ooh-ooh,'}, {c:'A', l:'ooh-ooh-ooh'} ];
+
 const R_JOY_VERSE1_LINES = [
   [ {c:'G', l:'There is beauty in my brokenness'} ],
   [ {c:'C', l:"I've got true love instead of pain"} ],
   [ {c:'Em', l:"There's freedom even though you've captured me"} ],
   [ {c:'Am7', l:"I've got joy instead of mourning"} ],
 ];
+
+const R_WB_PRECHORUS_L1  = [ {c:'G#m7', l:"Isn't it"}, {c:'B2', l:"wild doesn't it make you wonder"} ];
+const R_WB_PRECHORUS_L2  = [ {c:'G#m7', l:'How something so pro-'}, {c:'B2', l:'found'}, {c:'C#sus', l:'could be so simple'} ];
+const R_WB_PRECHORUS_DEVINE = [ {c:'G#m7', l:'How something so de-'}, {c:'B2', l:'vine'}, {c:'C#sus', l:'could be so simple'} ];
+const R_WB_BLOOD_LINE      = [ {c:'B/D#', l:'The blood, the blood,'}, {c:'C#/E#', l:'the blood'} ];
+const R_WB_WONDERFUL_LINE  = [ {c:'F#', l:'Oh, the wonderful'}, {c:'B2', l:'blood'} ];
+const R_WB_LOVE_LINE       = [ {c:'B2/D#', l:'Your love, Your love,'}, {c:'C#/E#', l:'Your love'} ];
+const R_WB_MARVELOUS_LINE  = [ {c:'F#', l:'Oh the marvelous'}, {c:'B2', l:'love'} ];
+const R_WB_REDEEMED_LINE   = [ {c:'D#m7', l:'Let the re-deemed sing a'}, {c:'C#sus', l:'song'} ];
+const R_WB_PRAISES_LINE    = [ {c:'F#/A#', l:'Praises be-long to the'}, {c:'B2', l:'Son'} ];
+const R_WB_CHORUS1_LINES = [
+  R_WB_BLOOD_LINE, R_WB_WONDERFUL_LINE, R_WB_LOVE_LINE, R_WB_MARVELOUS_LINE,
+  R_WB_REDEEMED_LINE, R_WB_PRAISES_LINE, R_WB_BLOOD_LINE, R_WB_WONDERFUL_LINE,
+];
+const R_WB_CHORUS2_LINES = [
+  R_WB_BLOOD_LINE, R_WB_WONDERFUL_LINE, R_WB_LOVE_LINE, R_WB_MARVELOUS_LINE,
+  R_WB_BLOOD_LINE, R_WB_WONDERFUL_LINE, R_WB_LOVE_LINE, R_WB_MARVELOUS_LINE,
+  R_WB_REDEEMED_LINE, R_WB_PRAISES_LINE, R_WB_BLOOD_LINE, R_WB_WONDERFUL_LINE,
+];
+const R_WB_BRIDGE1_LINES = [
+  [ {c:'B2', l:'The work You did is finished'}, {c:'F#/A#', l:'all of our sins forgiven'} ],
+  [ {c:'F#', l:'And now we get to live in'}, {c:'G#m7', l:'the wonder of the working blood'} ],
+  [ {c:'B2', l:'The cross was Your decision'}, {c:'F#/A#', l:'but death was not the ending'} ],
+  [ {c:'F#', l:"You rose and now we're risen"}, {c:'G#m7', l:'oh the wonder of the working blood'} ],
+];
+const R_WB_NOTHING_BUT_LINE = [ {c:'F#/A#', l:'Nothing but the'}, {c:'B2', l:'blood of'}, {c:'C#sus', l:'Je-'}, {c:'F#', l:'sus'} ];
 
 const SONGS = [
   {
@@ -2250,6 +2300,197 @@ const SONGS = [
       ]},
     ],
   },
+  {
+    id: 'what-a-god',
+    code: 'ae',  // permanent short id for URL sharing -- never reassign
+    title: 'What a God',
+    artist: '',
+    originalKey: 'A',
+    tempo: 72,
+    time: '4/4',
+    sections: [
+      { type:'verse', n:1, lines:[
+        [ {c:'F#m', l:'Who thought'}, {c:'D', l:"I'd find You in the"}, {c:'A', l:'lowest place'} ],
+        [ {c:'F#m', l:'Who thought'}, {c:'D', l:"You'd feel me in the"}, {c:'E', l:'crowd'} ],
+        [ {c:'F#m', l:'Who knew'}, {c:'D', l:"You'd make good of my"}, {c:'A', l:'mistakes'} ],
+        [ {c:'A', l:"You're nothing like I"}, {c:'D', l:'thought You were'} ],
+        [ {c:'E', l:"You're better"} ],
+      ]},
+      { type:'chorus', lines:[
+        [ {c:'D', l:'What a God,'}, {c:'C#m', l:'what a God'} ],
+        [ {c:'F#m', l:'What a God,'}, {c:'A', l:'what a God'} ],
+        [ {c:'D', l:'What a God,'}, {c:'C#m', l:'what a God'} ],
+        [ {c:'F#m', l:'What a God,'}, {c:'A', l:'what a God'} ],
+      ]},
+      { type:'verse', n:2, lines:[
+        [ {c:'F#m', l:'I thought'}, {c:'D', l:"You'd show up for"}, {c:'A', l:'perfection'} ],
+        [ {c:'F#m', l:'What kind of God'}, {c:'D', l:'looks for the'}, {c:'A', l:'lost'} ],
+        [ {c:'D', l:"They say it's"}, {c:'D', l:'over for a'}, {c:'A', l:'sinner'} ],
+        [ {c:'Bm', l:"You said, no it's"}, {c:'D', l:"not, no it's"}, {c:'E', l:'not'} ],
+        [ {c:'Bm', l:"You say, no it's"}, {c:'D', l:"not, no it's"}, {c:'E', l:'not'} ],
+      ]},
+      { type:'bridge', lines:[
+        [ {c:'D', l:"If the highest place I've reached"} ],
+        [ {c:'E', l:"Is at Your feet, then I've done it all"} ],
+        [ {c:'F#m', l:"If the best thing that I've seen"} ],
+        [ {c:'C#m', l:"Is Your glory, then I've seen it all"} ],
+        [ {c:'D', l:'Your love has changed my life'} ],
+        [ {c:'E', l:'Forever satisfied'} ],
+        [ {c:'F#m', l:'God, You are my'}, {c:'C#m', l:'everything'} ],
+        [ {c:'D', l:'If one word is the only thing'} ],
+        [ {c:'C#m', l:"You speak, then I've heard it all"} ],
+        [ {c:'A', l:'If I feel Your heart and never'} ],
+        [ {c:'C#m', l:'See Your hand, I still have it all'} ],
+        [ {c:'D', l:'No treasure of this life'}, {c:'E', l:'could ever satisfy'} ],
+        [ {c:'F#m', l:'God, You are my'}, {c:'E', l:'everything'} ],
+        [ {c:'D', l:'God, You are my'}, {c:'E', l:'everything'} ],
+        [ {c:'F#m', l:'God, You are my'}, {c:'C#m', l:'everything'} ],
+      ]},
+      { type:'interlude', chordLine:['D','E','F#m','A'] },
+    ],
+  },
+  {
+    id: 'demons',
+    code: 'af',  // permanent short id for URL sharing -- never reassign
+    title: 'Demons',
+    artist: 'Josiah Queen',
+    originalKey: 'D',
+    tempo: 74,
+    time: '4/4',
+    sections: [
+      { type:'verse', n:1, lines:[
+        [ {c:'Bm', l:'Oh, why?'}, {c:'D', l:'Oh, why?'} ],
+        [ {c:'A', l:'Does it feel just like a warzone in my mind?'} ],
+        [ {c:'Bm', l:'As I fight'}, {c:'D', l:'the fight'} ],
+        [ {c:'A', l:'And try to hear Your voice through all the lies'} ],
+      ]},
+      { type:'prechorus', lines: R_DEMONS_PRECHORUS_LINES },
+      { type:'chorus', lines: R_DEMONS_CHORUS_LINES },
+      { type:'verse', n:2, lines:[
+        [ {c:'Bm', l:"You're"}, {c:'D', l:'always near'} ],
+        [ {c:'A', l:"Just a mention of Your name, and You're right here"} ],
+        [ {c:'Bm', l:"You'll wipe my"}, {c:'D', l:'tears'} ],
+        [ {c:'A', l:"You're deliverin' me out from all my fears"} ],
+      ]},
+      { type:'prechorus', note:'Repeat', lines: R_DEMONS_PRECHORUS_LINES },
+      { type:'chorus', note:'Repeat', lines: R_DEMONS_CHORUS_LINES },
+      { type:'postchorus', lines: R_DEMONS_POSTCHORUS_LINES },
+      { type:'bridge', lines:[
+        R_DEMONS_OOH_LINE,
+        R_DEMONS_OOH_BMA_LINE,
+        R_DEMONS_OOH_LINE,
+        [ {c:'Bm', l:''}, {c:'A', l:'Ooh-ooh-ooh'} ],
+      ]},
+      { type:'prechorus', note:'Hook only', lines:[ R_DEMONS_PRECHORUS_TAIL ] },
+      { type:'chorus', note:'Repeat', lines: R_DEMONS_CHORUS_LINES },
+      { type:'postchorus', note:'Repeat', lines: R_DEMONS_POSTCHORUS_LINES },
+      { type:'outro', lines:[
+        R_DEMONS_OOH_LINE,
+        R_DEMONS_OOH_BMA_LINE,
+        R_DEMONS_OOH_LINE,
+        [ {c:'Bm', l:''}, {c:'A', l:''}, {c:'G', l:'Ooh-ooh-ooh'} ],
+      ]},
+    ],
+  },
+  {
+    id: 'surrendering-my-faith',
+    code: 'ag',  // permanent short id for URL sharing -- never reassign
+    title: 'Surrendering My Faith',
+    artist: 'Sarah Allison & HC Worship',
+    originalKey: 'D',
+    tempo: 70,
+    time: '4/4',
+    sections: [
+      { type:'verse', n:1, lines:[
+        [ {c:'D', l:"It's"}, {c:'G', l:'in my weakness the'}, {c:'A', l:'Messiah'}, {c:'Bm', l:'rests on me'} ],
+        [ {c:'D', l:"It's"}, {c:'G', l:'in my weakness the'}, {c:'A', l:'Messiah'}, {c:'Bm', l:'rests on me'} ],
+        [ {c:'', l:'So I come weary.'} ],
+        [ {c:'D', l:'I come'}, {c:'G', l:'fragile'} ],
+        [ {c:'A', l:'I come'}, {c:'Bm', l:'shattered'} ],
+        [ {c:'D', l:'I come'}, {c:'G', l:'fragile'} ],
+        [ {c:'A', l:'I come'}, {c:'Bm', l:'shattered'} ],
+      ]},
+      { type:'prechorus', lines:[
+        [ {c:'G', l:'I open up'}, {c:'A', l:'for you to see I pour my doubts at your feet.'} ],
+      ]},
+      { type:'chorus', lines:[
+        [ {c:'G', l:'I'}, {c:'A', l:'surrender to your'}, {c:'Bm', l:'pres-'}, {c:'D', l:'ence'} ],
+        [ {c:'G', l:'I'}, {c:'A', l:'surrender to you'}, {c:'Bm', l:'strength.'} ],
+        [ {c:'G', l:"I'm"}, {c:'A', l:'resurrected in'}, {c:'D', l:'your'}, {c:'C#', l:'living'}, {c:'Bm', l:'water.'} ],
+        [ {c:'G', l:"I'm"}, {c:'A', l:'surrendering my'}, {c:'Bm', l:'faith.'} ],
+        [ {c:'G', l:'All'}, {c:'A', l:'sufficient in your'}, {c:'D', l:'Grace.'} ],
+      ]},
+      { type:'bridge', note:'×2', lines:[
+        [ {c:'G', l:'So I will'}, {c:'D', l:'boast (I will boast).'} ],
+        [ {c:'A', l:'about my'}, {c:'Bm', l:'weakness (about my weakness).'} ],
+        [ {c:'G', l:'So I will'}, {c:'D', l:'boast (I will boast).'} ],
+        [ {c:'A', l:'about my'}, {c:'Bm', l:'broken pieces (broken pieces).'} ],
+      ]},
+      { type:'tag', lines:[
+        [ {c:'', l:"That's where the glory is."} ],
+        [ {c:'', l:"That's where the Messiah lives."} ],
+        [ {c:'', l:'In all my broken pieces.'} ],
+      ]},
+    ],
+  },
+  {
+    id: 'the-wonderful-blood',
+    code: 'ah',  // permanent short id for URL sharing -- never reassign
+    title: 'The Wonderful Blood',
+    artist: '',
+    originalKey: 'B',
+    tempo: 72,
+    time: '4/4',
+    sections: [
+      { type:'intro', chordLine:['G#m7','F#','D#m7','C#','B2'] },
+      { type:'verse', n:1, lines:[
+        [ {c:'G#m7', l:'The precious'}, {c:'F#', l:"fountain from Calvary's mountain"} ],
+        [ {c:'D#m7', l:'Flowing'}, {c:'C#', l:'down to'}, {c:'B2', l:'you and I'} ],
+        [ {c:'G#m7', l:'It washes'}, {c:'F#', l:'us clean oh what a mystery'} ],
+        [ {c:'D#m7', l:'That red'}, {c:'C#', l:'blood makes'}, {c:'B2', l:'me white'} ],
+      ]},
+      { type:'prechorus', n:1, lines:[ R_WB_PRECHORUS_L1, R_WB_PRECHORUS_L2 ] },
+      { type:'chorus', n:1, lines: R_WB_CHORUS1_LINES },
+      { type:'verse', n:2, lines:[
+        [ {c:'G#m7', l:'My precious'}, {c:'F#', l:"Jesus oh I'm so thankful"} ],
+        [ {c:'D#m7', l:'For the'}, {c:'C#', l:'day You'}, {c:'B2', l:'saved my life'} ],
+        [ {c:'G#m7', l:'As I'}, {c:'F#', l:'re-member my heart grows tender'} ],
+        [ {c:'D#m7', l:'Tears'}, {c:'C#', l:'be-gin to'}, {c:'B2', l:'fill my eyes'} ],
+      ]},
+      { type:'prechorus', n:1, note:'Repeat', lines:[ R_WB_PRECHORUS_L1, R_WB_PRECHORUS_L2, R_WB_PRECHORUS_L1, R_WB_PRECHORUS_DEVINE ] },
+      { type:'chorus', n:1, note:'Repeat', lines: R_WB_CHORUS1_LINES },
+      { type:'instrumental', chordLine:['B2','F#/A#','F#','G#m7','B2','F#/A#','F#','G#m7'] },
+      { type:'bridge', n:1, note:'×2', lines: R_WB_BRIDGE1_LINES },
+      { type:'tag', n:1, lines:[
+        [ {c:'B2', l:'Oh the wonder of the working blood'} ],
+        [ {c:'F#/A#', l:'Oh the wonder of the working blood'} ],
+        [ {c:'F#', l:'Oh the wonder of the'}, {c:'G#m7', l:'working blood'} ],
+      ]},
+      { type:'chorus', n:2, lines: R_WB_CHORUS2_LINES },
+      { type:'bridge', n:1, note:'Repeat ×2', lines: R_WB_BRIDGE1_LINES },
+      { type:'tag', n:2, note:'×2', lines:[
+        [ {c:'F#', l:'The wonder of the working blood'} ],
+        [ {c:'G#m7', l:'The wonder of the working blood'} ],
+        [ {c:'F#/A#', l:'The wonder of the working blood'} ],
+        [ {c:'B2', l:'(The wonder of the working blood)'} ],
+      ]},
+      { type:'bridge', n:2, lines:[
+        [ {c:'F#', l:'Oh precious'}, {c:'G#m7', l:'is the flow'} ],
+        [ {c:'F#/A#', l:'That makes me'}, {c:'B2', l:'white as snow'} ],
+        [ {c:'F#/C#', l:'No other'}, {c:'G#m7', l:'fount I know'} ],
+        R_WB_NOTHING_BUT_LINE,
+      ]},
+      { type:'bridge', n:3, lines:[
+        [ {c:'F#', l:'Oh precious is the flow'} ],
+        [ {c:'C#sus', l:'That makes me'}, {c:'F#', l:'white'}, {c:'C#/E#', l:'as snow'} ],
+        [ {c:'D#m7', l:'No other'}, {c:'B2', l:'fount I know'} ],
+        [ {c:'F#/A#', l:'Nothing but the'}, {c:'B2', l:'blood of'}, {c:'C#sus', l:'Je-'}, {c:'D#m7', l:'sus'} ],
+        [ {c:'F#/A#', l:'Nothing but the'}, {c:'B2', l:'blood of'}, {c:'C#sus', l:'Je-'}, {c:'D#m7', l:'sus'} ],
+        R_WB_NOTHING_BUT_LINE,
+      ]},
+      { type:'outro', chordLine:['B2','B2'] },
+    ],
+  },
 ];
 
 /* ======================= MUSIC THEORY ======================= */
@@ -2557,6 +2798,7 @@ const TYPE_META = {
   halfchorus:   { label:'Half-Chorus',  abbr:'Hc', color:'var(--sec-chorus)' },
   altchorus:    { label:'Alt Chorus',   abbr:'Ac', color:'var(--sec-chorus)' },
   prechorus:    { label:'Pre-Chorus',   abbr:'Pc', color:'var(--sec-verse)' },
+  postchorus:   { label:'Post-Chorus',  abbr:'Pc2', color:'var(--sec-chorus)' },
   bridge:       { label:'Bridge',       abbr:'B',  color:'var(--sec-bridge)' },
   instrumental: { label:'Instrumental', abbr:'Is', color:'var(--sec-inst)' },
   interlude:    { label:'Interlude',    abbr:'Il', color:'var(--sec-inst)' },
